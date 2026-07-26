@@ -1,0 +1,28 @@
+{
+  // eoe-notebook: submission gate for expressions-of-emptiness.com
+  // Deploy: wrangler deploy (after `wrangler login`, KV create, secrets — see README)
+  "name": "eoe-notebook",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-26",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  // wrangler kv namespace create QUEUE   → paste the id it prints below
+  "kv_namespaces": [
+    { "binding": "QUEUE", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }
+  ],
+
+  "vars": {
+    "ALLOWED_ORIGIN": "https://expressions-of-emptiness.com",
+    "GITHUB_REPO": "ddyson1/expressions-of-emptiness",
+    "MAX_PER_HOUR": "3"
+  }
+
+  // Secrets (never in this file — set with `wrangler secret put <NAME>`):
+  //   TURNSTILE_SECRET  — Cloudflare Turnstile secret key (bot gate)
+  //   GITHUB_TOKEN      — fine-grained PAT, contents:write + pull-requests:write on the repo
+}

@@ -176,6 +176,51 @@ body::before {
 .stf__item .stf__shadow,
 .stf__item [class*="shadow"] { opacity: 0.5; }
 
+/* signature under an entry */
+.sig { margin: 1.6rem 0 0; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--ink-dim); }
+
+/* blank pages, waiting to be filled */
+.blankpage .waiting {
+  text-align: center;
+  font-size: 0.95rem; letter-spacing: 0.14em;
+  color: #c9c7be;
+}
+
+/* the write-in page */
+.formkick { margin: 0 0 1.4rem; font-size: 1.05rem; letter-spacing: 0.08em; color: var(--ink-dim); text-align: center; }
+.fillform { display: grid; gap: 0.8rem; }
+.fillform textarea, .fillform input[type="text"] {
+  font-family: var(--display);
+  font-size: 1rem; letter-spacing: 0.04em; line-height: 1.9;
+  color: var(--ink);
+  background: transparent;
+  border: 0; border-bottom: 1px solid #d8d5cb;
+  padding: 0.4rem 0.1rem;
+  resize: none; width: 100%;
+}
+.fillform textarea:focus, .fillform input:focus { outline: none; border-bottom-color: var(--oxblood); }
+.formrow { display: flex; align-items: center; justify-content: space-between; }
+.fcount { font-size: 0.75rem; letter-spacing: 0.12em; color: #b5b3aa; }
+.fillform button {
+  all: unset; cursor: pointer;
+  font-size: 0.95rem; letter-spacing: 0.1em;
+  color: var(--oxblood);
+  padding: 0.3rem 0.2rem;
+  transition: color 220ms var(--ease);
+}
+.fillform button:hover, .fillform button:focus-visible { color: var(--oxblood-bright); }
+.fillform button[disabled] { color: #b5b3aa; cursor: default; }
+.fnote { min-height: 1.2em; margin: 0; font-size: 0.85rem; letter-spacing: 0.06em; color: var(--ink-dim); text-align: center; }
+
+/* shelf */
+.shelf { display: grid; gap: 1.1rem; margin-top: 0.6rem; }
+.shelf a, .backlink { color: var(--ink); text-decoration: none; border-bottom: 1px solid #d8d5cb; padding-bottom: 2px; transition: color 220ms var(--ease); }
+.shelf a:hover, .backlink:hover { color: var(--oxblood); }
+.backlink { display: inline-block; margin-top: 2rem; font-size: 0.9rem; color: var(--ink-dim); }
+
+/* data failed to load */
+.bookerror { color: var(--muted); font-size: 0.95rem; letter-spacing: 0.08em; display: grid; place-items: center; min-height: 40vh; }
+
 /* ---- pager: whisper-thin navigation under the book ---- */
 .pager {
   display: flex; align-items: center; gap: 1.1rem;
@@ -194,3 +239,5 @@ body::before {
 .pager button:hover, .pager button:focus-visible { color: var(--oxblood-bright); }
 .pager button[disabled] { color: #3d3a33; cursor: default; }
 .pager .where { min-width: 5.5rem; text-align: center; }
+.pager .write { color: var(--oxblood); margin-left: 0.6rem; }
+.pager .write:hover, .pager .write:focus-visible { color: var(--oxblood-bright); }

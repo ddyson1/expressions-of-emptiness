@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>expressions of emptiness</title>
-  <meta name="description" content="A personal collection of poetry. A notebook — turn the pages.">
+  <meta name="description" content="A communal notebook of poetry. Turn the pages; fill one.">
 
   <meta property="og:title" content="expressions of emptiness">
-  <meta property="og:description" content="A personal collection of poetry.">
+  <meta property="og:description" content="A communal notebook of poetry. Turn the pages; fill one.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://expressions-of-emptiness.com">
 
@@ -19,89 +19,7 @@
 
   <div class="book-wrap">
     <div class="book-col">
-    <div id="book">
-
-      <!-- cover (soft: hard pages wedge StPageFlip's portrait mode) -->
-      <div class="page cover">
-        <div class="inner">
-          <div class="mark"><span>expressions</span><span class="of">of</span><span>emptiness</span></div>
-          <p class="open-hint">by dd</p>
-        </div>
-      </div>
-
-      <!-- PLACEHOLDER poems — replace each .poem with your own writing -->
-      <div class="page">
-        <div class="inner">
-          <div class="poem">
-            <p>the room keeps the shape of you</p>
-            <p>the way a glass keeps water gone &mdash;</p>
-            <p class="dim">curved around an absence,</p>
-            <p>still, and cold, and clear.</p>
-          </div>
-          <span class="folio">1</span>
-        </div>
-      </div>
-
-      <div class="page -back">
-        <div class="inner">
-          <div class="poem">
-            <p>i have learned the weight of quiet.</p>
-            <p>it is not nothing.</p>
-            <p>it is everything,</p>
-            <p>held very carefully, and empty.</p>
-          </div>
-          <span class="folio">2</span>
-        </div>
-      </div>
-
-      <div class="page">
-        <div class="inner">
-          <div class="poem">
-            <p>some mornings i am a doorway</p>
-            <p>with no house attached &mdash;</p>
-            <p class="dim">wind moving through</p>
-            <p>where a life should be.</p>
-          </div>
-          <span class="folio">3</span>
-        </div>
-      </div>
-
-      <div class="page -back">
-        <div class="inner">
-          <div class="poem">
-            <p>and still i keep the light on.</p>
-            <p>not for anyone.</p>
-            <p>just to see</p>
-            <p>the shape of the dark.</p>
-          </div>
-          <span class="folio">4</span>
-        </div>
-      </div>
-
-      <!-- about, inside the book -->
-      <!-- PLACEHOLDER about text — replace with your own words -->
-      <div class="page">
-        <div class="inner">
-          <div class="poem about">
-            <p class="dim">about</p>
-            <p>poems written in the empty hours.</p>
-            <p>a notebook left open<br>for whoever finds it.</p>
-          </div>
-          <span class="folio">about</span>
-        </div>
-      </div>
-
-      <!-- last leaf: contact -->
-      <div class="page endpage">
-        <div class="inner">
-          <nav aria-label="site">
-            <a href="mailto:dyson@plotflow.io">contact</a>
-          </nav>
-          <p class="fin">expressions of emptiness &mdash; by dd</p>
-        </div>
-      </div>
-
-    </div>
+      <div id="book"></div>
     </div>
   </div>
 
@@ -109,34 +27,176 @@
     <button id="pv" type="button" aria-label="previous page">&#8249; back</button>
     <span class="where" id="where">cover</span>
     <button id="nx" type="button" aria-label="next page">next &#8250;</button>
+    <button id="wr" type="button" class="write" aria-label="go to the first empty page">write</button>
   </nav>
 
   <script src="js/page-flip.browser.js"></script>
   <script>
-    (function () {
-      var el = document.getElementById('book');
-      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  (function () {
+    /* ---- config ---- */
+    var WORKER_URL = "";   /* set to the Cloudflare Worker origin to open submissions */
+    var qs = new URLSearchParams(location.search);
+    var wanted = (qs.get('notebook') || '001').replace(/[^0-9]/g, '') || '001';
+    var isArchiveView = qs.has('notebook');
 
-      // 3:4 notebook ratio; 'stretch' fits the #book container, and because the
-      // container is narrower than two page-widths the book renders as a
-      // one-page portrait notebook.
-      var pageFlip = new St.PageFlip(el, {
-        width: 375,
-        height: 500,
+    var book = document.getElementById('book');
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---- tiny DOM helpers ---- */
+    function el(tag, cls, text) {
+      var d = document.createElement(tag);
+      if (cls) d.className = cls;
+      if (text != null) d.textContent = text;
+      return d;
+    }
+    function page(cls) {
+      var p = el('div', 'page' + (cls ? ' ' + cls : ''));
+      var inner = el('div', 'inner');
+      p.appendChild(inner);
+      return { p: p, inner: inner };
+    }
+
+    /* ---- build pages from data ---- */
+    function build(nb, archive) {
+      var frag = document.createDocumentFragment();
+
+      /* cover */
+      var cover = page('cover');
+      var mark = el('div', 'mark');
+      ['expressions', 'of', 'emptiness'].forEach(function (w, i) {
+        var s = el('span', i === 1 ? 'of' : null, w);
+        mark.appendChild(s);
+      });
+      cover.inner.appendChild(mark);
+      cover.inner.appendChild(el('p', 'open-hint',
+        isArchiveView ? 'notebook ' + nb.id + ' — archived' : 'notebook ' + nb.id + ' — by dd & strangers'));
+      frag.appendChild(cover.p);
+
+      /* entry slots */
+      var byN = {};
+      (nb.entries || []).forEach(function (e) { byN[e.n] = e; });
+      var firstBlank = null;
+      for (var n = 1; n <= nb.pages; n++) {
+        var e = byN[n];
+        if (e) {
+          var pg = page(n % 2 === 0 ? '-back' : null);
+          var poem = el('div', 'poem');
+          e.lines.forEach(function (line) {
+            var dim = line.charAt(0) === '~';
+            var p = el('p', dim ? 'dim' : null, dim ? line.slice(1) : line);
+            poem.appendChild(p);
+          });
+          pg.inner.appendChild(poem);
+          var sig = el('p', 'sig', '— ' + (e.name || 'anonymous'));
+          pg.inner.appendChild(sig);
+          pg.inner.appendChild(el('span', 'folio', String(n)));
+          frag.appendChild(pg.p);
+        } else if (firstBlank === null && !isArchiveView) {
+          /* the write-in page */
+          firstBlank = n;
+          var fp = page('formpage');
+          fp.inner.appendChild(el('p', 'formkick', 'this page is yours'));
+          var form = el('form', 'fillform');
+          form.id = 'fillform';
+          form.innerHTML =
+            '<textarea id="ftext" maxlength="600" rows="7" placeholder="leave what the empty hours gave you&#8230;" required></textarea>' +
+            '<input id="fname" type="text" maxlength="40" placeholder="signed (optional)" autocomplete="off">' +
+            '<input id="fhp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-5000px">' +
+            '<div class="formrow"><span class="fcount"><span id="fc">0</span>/600</span>' +
+            '<button type="submit" id="fgo">offer it</button></div>' +
+            '<p class="fnote" id="fnote"></p>';
+          fp.inner.appendChild(form);
+          fp.inner.appendChild(el('span', 'folio', String(n)));
+          frag.appendChild(fp.p);
+        } else {
+          var bl = page('blankpage' + (n % 2 === 0 ? ' -back' : ''));
+          bl.inner.appendChild(el('p', 'waiting', isArchiveView ? '' : 'still empty'));
+          bl.inner.appendChild(el('span', 'folio', String(n)));
+          frag.appendChild(bl.p);
+        }
+      }
+
+      /* about */
+      var ab = page(null);
+      var abPoem = el('div', 'poem about');
+      abPoem.appendChild(el('p', 'dim', 'about'));
+      abPoem.appendChild(el('p', null, 'a communal notebook of poetry.'));
+      var ap = el('p'); ap.innerHTML = 'anyone may fill a page.<br>when all ' + nb.pages + ' are full,<br>the notebook is shelved<br>and a blank one begins.';
+      abPoem.appendChild(ap);
+      ab.inner.appendChild(abPoem);
+      ab.inner.appendChild(el('span', 'folio', 'about'));
+      frag.appendChild(ab.p);
+
+      /* shelf */
+      var sh = page(null);
+      var shPoem = el('div', 'poem about');
+      shPoem.appendChild(el('p', 'dim', 'the shelf'));
+      if (archive.notebooks && archive.notebooks.length) {
+        var list = el('div', 'shelf');
+        archive.notebooks.forEach(function (a) {
+          var link = el('a', null, 'notebook ' + a.id + ' — ' + (a.filled || ''));
+          link.href = '?notebook=' + a.id;
+          list.appendChild(link);
+        });
+        shPoem.appendChild(list);
+      } else {
+        shPoem.appendChild(el('p', null, 'no notebooks filled yet.'));
+        shPoem.appendChild(el('p', 'dim', 'this one is the first.'));
+      }
+      if (isArchiveView) {
+        var back = el('a', 'backlink', 'return to the open notebook');
+        back.href = location.pathname;
+        shPoem.appendChild(back);
+      }
+      sh.inner.appendChild(shPoem);
+      sh.inner.appendChild(el('span', 'folio', 'shelf'));
+      frag.appendChild(sh.p);
+
+      /* endpage */
+      var end = page('endpage');
+      var nav2 = el('nav');
+      var mail = el('a', null, 'contact');
+      mail.href = 'mailto:dyson@plotflow.io';
+      nav2.appendChild(mail);
+      end.inner.appendChild(nav2);
+      end.inner.appendChild(el('p', 'fin', 'expressions of emptiness — by dd & strangers'));
+      frag.appendChild(end.p);
+
+      book.appendChild(frag);
+      return firstBlank;
+    }
+
+    /* ---- fetch data, then boot ---- */
+    Promise.all([
+      fetch('data/notebook-' + wanted + '.json').then(function (r) {
+        if (!r.ok) throw new Error('no notebook ' + wanted);
+        return r.json();
+      }),
+      fetch('data/archive.json').then(function (r) { return r.ok ? r.json() : { notebooks: [] }; })
+    ]).then(function (res) {
+      var nb = res[0], archive = res[1];
+      var firstBlank = build(nb, archive);
+
+      var pageFlip = new St.PageFlip(book, {
+        width: 375, height: 500,
         size: 'stretch',
         minWidth: 260, maxWidth: 520,
         minHeight: 340, maxHeight: 700,
         usePortrait: true,
         showCover: true,
-        maxShadowOpacity: 0.12,   /* matte paper, not gloss */
+        maxShadowOpacity: 0.12,
         flippingTime: reduced ? 1 : 800,
         mobileScrollSupport: false,
         showPageCorners: true
       });
       pageFlip.loadFromHTML(document.querySelectorAll('.page'));
-      window.pageFlip = pageFlip;  /* handy for console debugging */
+      window.pageFlip = pageFlip;
 
+      var last = pageFlip.getPageCount() - 1;
+
+      /* keyboard */
       document.addEventListener('keydown', function (e) {
+        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
         if (e.key === 'ArrowRight' || e.key === ' ') { pageFlip.flipNext(); e.preventDefault(); }
         else if (e.key === 'ArrowLeft') { pageFlip.flipPrev(); e.preventDefault(); }
       });
@@ -144,11 +204,11 @@
       /* pager */
       var pv = document.getElementById('pv'),
           nx = document.getElementById('nx'),
+          wr = document.getElementById('wr'),
           where = document.getElementById('where');
-      var last = pageFlip.getPageCount() - 1;
       function label(i) {
         if (i === 0) return 'cover';
-        if (i >= last - 1) return 'the end';
+        if (i > nb.pages) return ['about', 'the shelf', 'the end'][Math.min(i - nb.pages - 1, 2)] || 'the end';
         return 'page ' + i;
       }
       function paint(i) {
@@ -159,8 +219,53 @@
       paint(0);
       pv.addEventListener('click', function () { pageFlip.flipPrev(); });
       nx.addEventListener('click', function () { pageFlip.flipNext(); });
+      if (firstBlank !== null) {
+        wr.addEventListener('click', function () {
+          pageFlip.turnToPage(firstBlank);   /* flip() can't span many pages */
+          paint(firstBlank);
+        });
+      } else {
+        wr.style.display = 'none';
+      }
       pageFlip.on('flip', function (e) { paint(e.data); });
-    })();
+
+      /* form */
+      var form = document.getElementById('fillform');
+      if (form) {
+        var ftext = document.getElementById('ftext'),
+            fname = document.getElementById('fname'),
+            fhp = document.getElementById('fhp'),
+            fc = document.getElementById('fc'),
+            fgo = document.getElementById('fgo'),
+            fnote = document.getElementById('fnote');
+        ftext.addEventListener('input', function () { fc.textContent = ftext.value.length; });
+        form.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          if (fhp.value) return; /* honeypot */
+          if (!WORKER_URL) {
+            fnote.textContent = 'the pen is still being made — submissions open soon.';
+            return;
+          }
+          fgo.disabled = true; fnote.textContent = 'offering…';
+          fetch(WORKER_URL + '/submit', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ text: ftext.value.trim(), name: fname.value.trim(), notebook: nb.id })
+          }).then(function (r) { return r.json(); }).then(function (out) {
+            fnote.textContent = out.ok
+              ? 'received. it will appear once it has been read.'
+              : (out.error || 'something went wrong — try again later.');
+            if (out.ok) { ftext.value = ''; fname.value = ''; fc.textContent = '0'; }
+          }).catch(function () {
+            fnote.textContent = 'something went wrong — try again later.';
+          }).finally(function () { fgo.disabled = false; });
+        });
+      }
+    }).catch(function (err) {
+      book.textContent = 'could not open the notebook. (' + err.message + ')';
+      book.className = 'bookerror';
+    });
+  })();
   </script>
 
 </body>
