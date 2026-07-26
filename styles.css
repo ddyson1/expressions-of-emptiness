@@ -221,23 +221,47 @@ body::before {
 /* data failed to load */
 .bookerror { color: var(--muted); font-size: 0.95rem; letter-spacing: 0.08em; display: grid; place-items: center; min-height: 40vh; }
 
-/* ---- pager: whisper-thin navigation under the book ---- */
-.pager {
-  display: flex; align-items: center; gap: 1.1rem;
-  margin: 0 0 clamp(1rem, 3vh, 1.8rem);
-  font-size: 0.9rem; letter-spacing: 0.12em;
-  color: var(--muted);
+/* ---- side tabs: index tabs on the fore-edge of the notebook ---- */
+.book-col { position: relative; }
+.tabs {
+  position: absolute;
+  top: 12%;
+  right: 0;
+  transform: translateX(calc(100% - 1px));
+  display: flex; flex-direction: column; gap: 7px;
+  z-index: 0;                     /* behind the pages, like real tabs */
   user-select: none;
 }
-.pager button {
+.tabs button {
   all: unset;
   cursor: pointer;
-  color: var(--dim);
-  padding: 0.2rem 0.55rem;
-  transition: color 220ms var(--ease);
+  writing-mode: vertical-rl;
+  font-family: var(--display);
+  font-size: 0.78rem; letter-spacing: 0.12em;
+  color: var(--gloss);
+  background: var(--card);
+  border: 1px solid var(--hairline); border-left: 0;
+  border-radius: 0 6px 6px 0;
+  padding: 0.7rem 0.3rem;
+  transition: color 220ms var(--ease), transform 220ms var(--ease);
 }
-.pager button:hover, .pager button:focus-visible { color: var(--oxblood-bright); }
-.pager button[disabled] { color: #3d3a33; cursor: default; }
-.pager .where { min-width: 5.5rem; text-align: center; }
-.pager .write { color: var(--oxblood); margin-left: 0.6rem; }
-.pager .write:hover, .pager .write:focus-visible { color: var(--oxblood-bright); }
+.tabs button:hover, .tabs button:focus-visible { color: var(--near-white); transform: translateX(2px); }
+.tabs button.active { color: var(--near-white); border-right-color: var(--oxblood); border-right-width: 2px; }
+.tabs .write { color: var(--oxblood-bright); }
+.tabs .write:hover, .tabs .write:focus-visible { color: var(--oxblood-bright); }
+
+/* narrow screens: tabs become a quiet row under the book */
+@media (max-width: 700px) {
+  .tabs {
+    position: static; transform: none;
+    flex-direction: row; justify-content: center; flex-wrap: wrap;
+    margin: 0.9rem 0 0;
+  }
+  .tabs button {
+    writing-mode: horizontal-tb;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+  }
+  .tabs button.active { border-color: var(--oxblood); }
+}

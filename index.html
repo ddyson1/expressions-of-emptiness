@@ -23,13 +23,6 @@
     </div>
   </div>
 
-  <nav class="pager" aria-label="pages">
-    <button id="pv" type="button" aria-label="previous page">&#8249; back</button>
-    <span class="where" id="where">cover</span>
-    <button id="nx" type="button" aria-label="next page">next &#8250;</button>
-    <button id="wr" type="button" class="write" aria-label="go to the first empty page">write</button>
-  </nav>
-
   <script src="js/page-flip.browser.js"></script>
   <script>
   (function () {
@@ -201,33 +194,39 @@
         else if (e.key === 'ArrowLeft') { pageFlip.flipPrev(); e.preventDefault(); }
       });
 
-      /* pager */
-      var pv = document.getElementById('pv'),
-          nx = document.getElementById('nx'),
-          wr = document.getElementById('wr'),
-          where = document.getElementById('where');
-      function label(i) {
-        if (i === 0) return 'cover';
-        if (i > nb.pages) return ['about', 'the shelf', 'the end'][Math.min(i - nb.pages - 1, 2)] || 'the end';
-        return 'page ' + i;
-      }
-      function paint(i) {
-        where.textContent = label(i);
-        pv.disabled = i <= 0;
-        nx.disabled = i >= last;
-      }
-      paint(0);
-      pv.addEventListener('click', function () { pageFlip.flipPrev(); });
-      nx.addEventListener('click', function () { pageFlip.flipNext(); });
-      if (firstBlank !== null) {
-        wr.addEventListener('click', function () {
-          pageFlip.turnToPage(firstBlank);   /* flip() can't span many pages */
-          paint(firstBlank);
+      /* side tabs — index tabs on the fore-edge, like a real notebook */
+      var tabs = [
+        { label: 'cover', at: 0 },
+        { label: 'poems', at: 1 }
+      ];
+      if (firstBlank !== null) tabs.push({ label: 'write', at: firstBlank, cls: 'write' });
+      tabs.push(
+        { label: 'about', at: nb.pages + 1 },
+        { label: 'shelf', at: nb.pages + 2 },
+        { label: 'end', at: last }
+      );
+
+      var rail = el('nav', 'tabs');
+      rail.setAttribute('aria-label', 'sections');
+      var btns = tabs.map(function (t) {
+        var b = el('button', t.cls || null, t.label);
+        b.type = 'button';
+        b.addEventListener('click', function () {
+          pageFlip.turnToPage(t.at);   /* flip() can't span many pages */
+          setActive(pageFlip.getCurrentPageIndex());
         });
-      } else {
-        wr.style.display = 'none';
+        rail.appendChild(b);
+        return b;
+      });
+      document.querySelector('.book-col').appendChild(rail);
+
+      function setActive(i) {
+        var best = 0;
+        tabs.forEach(function (t, k) { if (i >= t.at) best = k; });
+        btns.forEach(function (b, k) { b.classList.toggle('active', k === best); });
       }
-      pageFlip.on('flip', function (e) { paint(e.data); });
+      setActive(0);
+      pageFlip.on('flip', function (e) { setActive(e.data); });
 
       /* form */
       var form = document.getElementById('fillform');
