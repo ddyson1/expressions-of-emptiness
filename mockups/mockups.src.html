@@ -1,0 +1,311 @@
+<style>
+/* ===== embedded fonts (self-contained) ===== */
+@font-face{font-family:"Swinger";src:url(data:font/woff2;base64,__SWINGER__) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"EB Garamond";src:url(data:font/woff2;base64,__EBG_REG__) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"EB Garamond";src:url(data:font/woff2;base64,__EBG_ITAL__) format("woff2");font-weight:400;font-style:italic;font-display:swap}
+
+/* ===== studio chrome ===== */
+:root{
+  --chrome:#0e0f12; --chrome-2:#16181c; --chrome-line:rgba(255,255,255,.10);
+  --chrome-ink:#e9eaec; --chrome-dim:#9aa0aa; --chrome-faint:#6b727c;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:"EB Garamond","Iowan Old Style",Palatino,Georgia,serif;
+}
+*{box-sizing:border-box}
+.studio{background:var(--chrome);color:var(--chrome-ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* nav */
+.jump{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:.2rem;align-items:center;
+  padding:.7rem clamp(1rem,4vw,2.5rem);background:rgba(14,15,18,.82);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--chrome-line);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
+.jump .brand{font-family:"Swinger",serif;letter-spacing:.04em;font-size:1rem;text-transform:none;margin-right:auto;color:var(--chrome-ink)}
+.jump a{color:var(--chrome-dim);text-decoration:none;padding:.35rem .6rem;border-radius:999px}
+.jump a:hover,.jump a:focus-visible{color:var(--chrome-ink);background:rgba(255,255,255,.07);outline:none}
+
+.intro{padding:clamp(3rem,9vw,6rem) clamp(1.2rem,5vw,3rem) clamp(1.5rem,4vw,2.5rem);max-width:56rem}
+.intro .eyebrow{font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--chrome-faint);margin:0 0 1rem}
+.intro h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,5vw,3.2rem);line-height:1.05;margin:0 0 1rem;text-wrap:balance}
+.intro .lede{color:var(--chrome-dim);font-size:1.05rem;max-width:44rem;margin:0}
+.intro .lede b{color:var(--chrome-ink);font-weight:400}
+.legend{margin-top:1.6rem;font-size:.8rem;color:var(--chrome-faint);line-height:1.9}
+
+/* slab shell */
+.slab{position:relative;min-height:88vh;overflow:hidden;border-top:1px solid var(--chrome-line)}
+.cap{position:absolute;z-index:20;left:clamp(1rem,4vw,2.5rem);bottom:clamp(1rem,4vw,2.5rem);
+  max-width:min(23rem,80vw);background:rgba(12,13,15,.86);color:var(--chrome-ink);
+  border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:1rem 1.15rem;backdrop-filter:blur(8px);
+  font-family:var(--sans);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.cap .n{font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--chrome-faint)}
+.cap h3{margin:.35rem 0 .4rem;font-size:1.15rem;font-weight:600;letter-spacing:.01em}
+.cap p{margin:0;font-size:.86rem;line-height:1.55;color:var(--chrome-dim)}
+
+/* ============ I &middot; CLINICAL VOID ============ */
+.d1{background:#0b0d11}
+.d1 .field{position:absolute;inset:0;padding:clamp(2rem,7vw,5rem);display:flex;flex-direction:column}
+.d1 .tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:#4d5763;text-transform:uppercase}
+.d1 .tag.tr{align-self:flex-end}
+.d1 .mark{font-family:"Swinger",serif;color:#c3ccd8;font-size:clamp(1.6rem,3.4vw,2.6rem);letter-spacing:.03em;margin-top:auto}
+.d1 .verse{font-family:var(--sans);color:#aab3bf;font-weight:300;font-size:clamp(1.05rem,1.9vw,1.4rem);
+  line-height:1.9;max-width:30rem;margin:1.4rem 0 0}
+.d1 .verse .q{color:#697380}
+.d1 hr{border:0;height:1px;background:#1d232b;width:min(30rem,60%);margin:1.6rem 0 0}
+
+/* ============ II &middot; CHAPBOOK (light) ============ */
+.d2{background:#e7e6df;color:#18181b}
+.d2 .page{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:clamp(2rem,6vw,4rem)}
+.d2 .frame{max-width:33rem;border-top:1px solid #2a3350;border-bottom:1px solid #2a3350;padding:clamp(2rem,5vw,3.4rem) 1rem}
+.d2 .kick{font-family:var(--serif);font-style:italic;color:#2a3350;font-size:1rem;margin:0 0 1.6rem}
+.d2 .mark{font-family:"Swinger",serif;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:.03em;margin:0 0 1.8rem;color:#141417}
+.d2 .verse{font-family:var(--serif);font-size:clamp(1.15rem,2vw,1.4rem);line-height:1.85;color:#26262b}
+.d2 .verse p{margin:0 0 1.1rem}
+.d2 .verse em{color:#5a5a63}
+.d2 .folio{font-family:var(--serif);font-style:italic;color:#2a3350;margin:1.8rem 0 0;font-size:.95rem;letter-spacing:.1em}
+
+/* ============ III &middot; ZINE ============ */
+.d3{background:#d6d4cd;color:#111}
+.d3 .sheet{position:absolute;inset:0;padding:clamp(1.4rem,5vw,3rem);display:flex;flex-direction:column;gap:1.4rem}
+.d3 .top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px solid #111;padding-bottom:.6rem}
+.d3 .top .no{font-family:var(--mono);font-size:.8rem;letter-spacing:.1em;font-weight:700}
+.d3 .top .date{font-family:var(--mono);font-size:.8rem;color:#555}
+.d3 .mark{font-family:"Swinger",serif;font-size:clamp(2.6rem,9vw,6rem);line-height:.92;letter-spacing:.01em;margin:.4rem 0 0;color:#0a0a0a}
+.d3 .verse{font-family:var(--mono);font-size:clamp(.86rem,1.5vw,1rem);line-height:1.8;max-width:34rem;color:#1a1a1a}
+.d3 .verse p{margin:0 0 1rem}
+.d3 .strike{position:relative;color:#c8321e}
+.d3 .strike::after{content:"";position:absolute;left:-.05em;right:-.05em;top:.55em;height:2px;background:#c8321e}
+.d3 .foot{margin-top:auto;border-top:1px solid #111;padding-top:.6rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#444;display:flex;justify-content:space-between}
+
+/* ============ IV &middot; FRAGMENTS (split) ============ */
+.d4{background:#101014}
+.d4 .split{position:absolute;inset:0}
+.d4 .layer{position:absolute;inset:0;display:grid;place-items:center;padding:clamp(2rem,6vw,4rem)}
+.d4 .layer.a{background:#101014;color:#ece9e2;clip-path:inset(0 50% 0 0)}
+.d4 .layer.b{background:#e8e6df;color:#141417;clip-path:inset(0 0 0 50%)}
+.d4 .seam{position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(140,140,150,.5);z-index:5}
+.d4 .frag{max-width:34rem;text-align:center}
+.d4 .mark{font-family:"Swinger",serif;font-size:clamp(2rem,6vw,4rem);line-height:1;letter-spacing:.02em;margin:0 0 1.6rem;display:grid;gap:.05em}
+.d4 .mark .of{font-size:.4em;opacity:.6}
+.d4 .verse{font-family:var(--serif);font-size:clamp(1.1rem,2.1vw,1.5rem);line-height:1.9;margin:0}
+.d4 .verse em{opacity:.72}
+
+/* ============ COMMENTS ============ */
+.comments{border-top:1px solid var(--chrome-line);background:var(--chrome-2);
+  padding:clamp(2.5rem,7vw,5rem) clamp(1.2rem,5vw,3rem)}
+.comments .inner{max-width:40rem;margin:0 auto}
+.comments h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,4vw,2.3rem);margin:0 0 .5rem}
+.comments .sub{color:var(--chrome-dim);margin:0 0 2rem;font-size:1rem;line-height:1.65}
+.cbox{background:var(--chrome);border:1px solid var(--chrome-line);border-radius:14px;padding:1.3rem}
+.cbox .row{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+.cbox label{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--chrome-faint)}
+.cbox input,.cbox textarea{font-family:var(--serif);font-size:1.05rem;color:var(--chrome-ink);
+  background:#0b0c0e;border:1px solid var(--chrome-line);border-radius:9px;padding:.7rem .85rem;width:100%;resize:vertical}
+.cbox textarea{min-height:6.5rem;line-height:1.6}
+.cbox input:focus,.cbox textarea:focus{outline:none;border-color:#5b6bd6;box-shadow:0 0 0 3px rgba(91,107,214,.22)}
+.cbox .foot{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.cbox .count{font-family:var(--mono);font-size:.75rem;color:var(--chrome-faint)}
+.cbox button{font-family:var(--sans);font-size:.9rem;font-weight:600;letter-spacing:.02em;color:#fff;
+  background:#4a57c7;border:0;border-radius:999px;padding:.65rem 1.4rem;cursor:pointer;transition:background .15s}
+.cbox button:hover{background:#5b6bd6}
+.cbox button:focus-visible{outline:2px solid #a9b3ff;outline-offset:2px}
+.modnote{display:flex;gap:.6rem;align-items:flex-start;margin:1.1rem 0 0;font-size:.82rem;color:var(--chrome-dim);line-height:1.55}
+.modnote .dot{flex:0 0 auto;width:.55rem;height:.55rem;border-radius:50%;border:1px solid var(--chrome-faint);margin-top:.35rem}
+
+.clist{list-style:none;margin:2.2rem 0 0;padding:0;display:flex;flex-direction:column;gap:1.3rem}
+.clist li{border-bottom:1px solid var(--chrome-line);padding-bottom:1.3rem}
+.clist .meta{display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem}
+.clist .who{font-family:var(--sans);font-size:.85rem;font-weight:600;color:var(--chrome-ink)}
+.clist .when{font-family:var(--mono);font-size:.72rem;color:var(--chrome-faint)}
+.clist .pending{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:#c9a24a;
+  border:1px solid rgba(201,162,74,.45);border-radius:999px;padding:.1rem .5rem}
+.clist .msg{font-family:var(--serif);font-size:1.1rem;line-height:1.6;color:#d6d8db;margin:0}
+
+.reality{margin:2.4rem 0 0;background:var(--chrome);border:1px solid var(--chrome-line);border-left:3px solid #4a57c7;
+  border-radius:10px;padding:1.2rem 1.3rem;font-size:.9rem;line-height:1.7;color:var(--chrome-dim)}
+.reality h4{margin:0 0 .5rem;font-family:var(--sans);font-size:.95rem;color:var(--chrome-ink)}
+.reality b{color:var(--chrome-ink);font-weight:600}
+.reality code{font-family:var(--mono);font-size:.82em;background:rgba(255,255,255,.06);padding:.1rem .35rem;border-radius:4px}
+
+.foot-note{padding:2.5rem clamp(1.2rem,5vw,3rem) 4rem;color:var(--chrome-faint);font-size:.8rem;text-align:center;border-top:1px solid var(--chrome-line)}
+
+@media (max-width:640px){
+  .d4 .layer.a{clip-path:inset(0 0 50% 0)}
+  .d4 .layer.b{clip-path:inset(50% 0 0 0)}
+  .d4 .seam{top:50%;bottom:auto;left:0;right:0;width:auto;height:1px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .intro{animation:fade .9s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+}
+</style>
+
+<div class="studio">
+
+  <nav class="jump">
+    <span class="brand">eoe</span>
+    <a href="#d1">I &middot; void</a>
+    <a href="#d2">II &middot; chapbook</a>
+    <a href="#d3">III &middot; zine</a>
+    <a href="#d4">IV &middot; fragments</a>
+    <a href="#comments">comments</a>
+  </nav>
+
+  <header class="intro">
+    <p class="eyebrow">expressions of emptiness &middot; design directions</p>
+    <h1>Four ways the same words could feel.</h1>
+    <p class="lede">Each direction keeps <b>Swinger</b> as the signature but commits to a different world &mdash; palette, body typeface, and layout all change. The idea is to react to whole moods, not tweaks. Pick one (or parts of several) and I'll build it out for real.</p>
+    <p class="legend">The verse below is <b>placeholder</b> &mdash; a stand-in until your own poems go in.<br>Scroll through, then try the comments interface at the end.</p>
+  </header>
+
+  <!-- ===== I ===== -->
+  <section class="slab d1" id="d1">
+    <div class="field">
+      <span class="tag">expressions of emptiness</span>
+      <span class="tag tr">i &mdash; hollow hour</span>
+      <div class="mark">expressions of emptiness</div>
+      <p class="verse">the room keeps the shape of you<br>the way a glass keeps water gone &mdash;<br><span class="q">curved around an absence,</span><br>still, and cold, and clear.</p>
+      <hr>
+    </div>
+    <aside class="cap">
+      <div class="n">I &middot; clinical void</div>
+      <h3>Emptiness as dissociation</h3>
+      <p>Cool blue-black. Verse set in a plain sans &mdash; unexpected for poetry, closer to clinical notes &mdash; floated low in a wide empty field. Restraint to the point of absence.</p>
+    </aside>
+  </section>
+
+  <!-- ===== II ===== -->
+  <section class="slab d2" id="d2">
+    <div class="page">
+      <div class="frame">
+        <p class="kick">expressions of emptiness</p>
+        <div class="mark">hollow hour</div>
+        <div class="verse">
+          <p>The room keeps the shape of you<br>the way a glass keeps water gone &mdash;<br><em>curved around an absence,</em><br>still, and cold, and clear.</p>
+        </div>
+        <p class="folio">&mdash; i &mdash;</p>
+      </div>
+    </div>
+    <aside class="cap">
+      <div class="n">II &middot; chapbook</div>
+      <h3>The printed pamphlet</h3>
+      <p>A light, letterpress world: cool paper, EB Garamond, ink-indigo rules, a page-number motif. Quiet and literary &mdash; a poem you'd hold. (Deliberately not the usual cream-and-terracotta.)</p>
+    </aside>
+  </section>
+
+  <!-- ===== III ===== -->
+  <section class="slab d3" id="d3">
+    <div class="sheet">
+      <div class="top"><span class="no">NO. 01</span><span class="date">2026</span></div>
+      <div class="mark">hollow<br>hour</div>
+      <div class="verse">
+        <p>the room keeps the shape of you<br>the way a glass keeps water <span class="strike">gone</span></p>
+        <p>i have learned the weight of quiet.<br>it is not nothing. it is everything,<br>held very carefully, and empty.</p>
+      </div>
+      <div class="foot"><span>expressions of emptiness</span><span>&mdash;</span></div>
+    </div>
+    <aside class="cap">
+      <div class="n">III &middot; zine</div>
+      <h3>Raw and unedited</h3>
+      <p>Concrete grey, monospace body, oversized Swinger, hard rules, one correction-mark red. Photocopied intensity &mdash; for the poems that aren't polite.</p>
+    </aside>
+  </section>
+
+  <!-- ===== IV ===== -->
+  <section class="slab d4" id="d4">
+    <div class="split">
+      <div class="layer a">
+        <div class="frag">
+          <div class="mark"><span>expressions</span><span class="of">of</span><span>emptiness</span></div>
+          <p class="verse">the room keeps the shape of you<br><em>curved around an absence</em><br>still, and cold, and clear</p>
+        </div>
+      </div>
+      <div class="layer b" aria-hidden="true">
+        <div class="frag">
+          <div class="mark"><span>expressions</span><span class="of">of</span><span>emptiness</span></div>
+          <p class="verse">the room keeps the shape of you<br><em>curved around an absence</em><br>still, and cold, and clear</p>
+        </div>
+      </div>
+      <div class="seam"></div>
+    </div>
+    <aside class="cap">
+      <div class="n">IV &middot; fragments</div>
+      <h3>The split</h3>
+      <p>The field divides down the seam; every word crosses from light-on-dark to dark-on-light. A direct nod to splitting &mdash; the same self, two irreconcilable halves. The risk pick.</p>
+    </aside>
+  </section>
+
+  <!-- ===== COMMENTS ===== -->
+  <section class="comments" id="comments">
+    <div class="inner">
+      <h2>Leave a message</h2>
+      <p class="sub">A quiet place for strangers to leave a word. This is the interface &mdash; try it; your message is saved only in this browser for the demo.</p>
+
+      <form class="cbox" id="cform">
+        <div class="row">
+          <label for="cname">Name <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
+          <input id="cname" type="text" maxlength="40" placeholder="anonymous" autocomplete="off">
+        </div>
+        <div class="row">
+          <label for="cmsg">Message</label>
+          <textarea id="cmsg" maxlength="500" placeholder="a word for the space that stays&hellip;"></textarea>
+        </div>
+        <div class="foot">
+          <span class="count"><span id="ccount">0</span> / 500</span>
+          <button type="submit">Leave message</button>
+        </div>
+        <p class="modnote"><span class="dot"></span><span>Messages are read before they appear. Nothing is published automatically &mdash; a gentle door, not an open one.</span></p>
+      </form>
+
+      <ul class="clist" id="clist">
+        <li>
+          <div class="meta"><span class="who">a stranger</span><span class="when">3 days ago</span></div>
+          <p class="msg">i read this at 2am and felt less alone in it. thank you for leaving the light on.</p>
+        </li>
+        <li>
+          <div class="meta"><span class="who">m.</span><span class="when">last week</span></div>
+          <p class="msg">&ldquo;held very carefully, and empty.&rdquo; i've never seen it put better.</p>
+        </li>
+      </ul>
+
+      <div class="reality">
+        <h4>How this works once it's live</h4>
+        A static site can't store messages on its own, so the interface needs a small backend behind it. Given your setup, the natural fit is <b>Cloudflare Pages Functions</b> writing to <code>KV</code> or <code>D1</code> &mdash; no server to run. Because these poems are personal and the audience is strangers, I'd wire it as <b>approve-before-publish</b>: a message lands in a queue, you get to read it, and only then does it appear &mdash; plus rate-limiting and spam/abuse filtering. The interface above already reflects that (the "read before they appear" note, and new messages showing as <b>awaiting review</b>).
+      </div>
+    </div>
+  </section>
+
+  <p class="foot-note">expressions of emptiness &middot; design study &middot; placeholder verse throughout</p>
+
+</div>
+
+<script>
+(function(){
+  var form=document.getElementById('cform');
+  if(!form) return;
+  var msg=document.getElementById('cmsg'), name=document.getElementById('cname'),
+      count=document.getElementById('ccount'), list=document.getElementById('clist'),
+      KEY='eoe_demo_comments';
+  msg.addEventListener('input',function(){count.textContent=msg.value.length});
+  function render(items){
+    items.forEach(function(it){
+      var li=document.createElement('li');
+      var meta=document.createElement('div'); meta.className='meta';
+      var who=document.createElement('span'); who.className='who'; who.textContent=it.name||'anonymous';
+      var when=document.createElement('span'); when.className='when'; when.textContent='just now';
+      var pend=document.createElement('span'); pend.className='pending'; pend.textContent='awaiting review';
+      meta.appendChild(who); meta.appendChild(when); meta.appendChild(pend);
+      var p=document.createElement('p'); p.className='msg'; p.textContent=it.msg;
+      li.appendChild(meta); li.appendChild(p);
+      list.insertBefore(li, list.firstChild);
+    });
+  }
+  try{ var saved=JSON.parse(localStorage.getItem(KEY)||'[]'); render(saved); }catch(e){}
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var text=msg.value.trim(); if(!text) return;
+    var item={name:name.value.trim(), msg:text};
+    render([item]);
+    try{ var s=JSON.parse(localStorage.getItem(KEY)||'[]'); s.push(item); localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){}
+    msg.value=''; name.value=''; count.textContent='0'; msg.focus();
+  });
+})();
+</script>

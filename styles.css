@@ -1,0 +1,166 @@
+/* =========================================================================
+   expressions of emptiness — the notebook
+   A black-and-red notebook in the dark. Drag the corner to turn the page.
+   Everything set in Swinger.
+
+   Palette + principles borrowed from MiG's tokens.css ("a notebook in the
+   dark. lowercase chrome, hairline rules, one oxblood accent that means
+   confirm and advance"). Values copied from
+   MiG/mig-app.github.io/tokens.css — oxblood is #bf382b, never #C0392B.
+   One accent only; do not add a second.
+   ========================================================================= */
+
+@font-face {
+  font-family: "Swinger";
+  src: url("fonts/Swinger.woff2") format("woff2"),
+       url("fonts/Swinger.woff") format("woff");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+/* kept available; unused on the page by request */
+@font-face {
+  font-family: "EB Garamond";
+  src: url("fonts/ebgaramond-regular.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root {
+  /* the dark room (MiG surfaces) */
+  --ground:   #14130f;
+  --card:     #1f1d18;
+  --panel:    #262320;
+  --hairline: #36312a;
+  --floor:    #0a0907;
+
+  /* the single accent */
+  --oxblood:        #bf382b;
+  --oxblood-bright: #e04434;
+  --oxblood-wash:   #2a1715;
+
+  /* text on dark, bright to dim */
+  --near-white: #f5f3ec;
+  --gloss:      #a8a69d;
+  --dim:        #8a8880;
+  --muted:      #6e6b64;
+
+  /* the pages themselves stay paper */
+  --paper:      #fffdf6;
+  --paper-back: #f6f4ec;
+  --ink:        #1c1c1a;
+  --ink-dim:    #6f6d67;
+
+  --display: "Swinger", "Georgia", serif;
+
+  /* motion (MiG) */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  min-height: 100svh;
+  display: flex; flex-direction: column; align-items: center;
+  background:
+    radial-gradient(120% 90% at 50% 20%, rgba(245,243,236,0.03), transparent 60%),
+    var(--ground);
+  color: var(--near-white);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* the book */
+.book-wrap {
+  flex: 1;
+  width: 100%;
+  display: grid; place-items: center;
+  padding: clamp(0.8rem, 2.5vh, 1.6rem) 1rem;
+  min-height: 0;
+}
+/* the library measures #book's parent to pick portrait vs landscape.
+   Wide enough for a two-page spread on desktop (cover alone, then both
+   sides of the open book); narrow viewports fall back to one page. */
+.book-col { width: min(94vw, 56rem); }
+#book { touch-action: none; }
+
+/* pages */
+.page {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 2px 6px 6px 2px;
+  overflow: hidden;
+}
+.page .inner {
+  height: 100%;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(1.8rem, 7%, 3rem);
+  position: relative;
+}
+.page.-back { background: var(--paper-back); }
+
+.poem {
+  text-align: left;
+  font-size: clamp(1rem, 0.85rem + 0.8vw, 1.45rem);
+  line-height: 2.1;
+  letter-spacing: 0.05em;
+}
+.poem p { margin: 0 0 1.5rem; }
+.poem p:last-child { margin: 0; }
+.poem p.dim { color: var(--ink-dim); }
+
+.folio {
+  position: absolute; left: 0; right: 0; bottom: clamp(0.9rem, 4%, 1.4rem);
+  text-align: center;
+  font-size: 0.8rem; letter-spacing: 0.2em;
+  color: #b5b3aa;
+}
+
+/* ---- the cover: black notebook, oxblood spine band. Flat, matte. ---- */
+.cover {
+  background:
+    linear-gradient(90deg, var(--oxblood) 0, var(--oxblood) 14px, transparent 14px),
+    var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: 2px 8px 8px 2px;
+}
+.cover .inner { justify-content: center; text-align: center; }
+.cover .mark {
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  line-height: 1.15; letter-spacing: 0.03em;
+  color: var(--near-white);
+  display: grid; gap: 0.1em;
+}
+.cover .mark .of { font-size: 0.45em; color: var(--gloss); }
+.cover .open-hint {
+  margin-top: 3rem;
+  font-size: 0.85rem; letter-spacing: 0.18em;
+  color: var(--oxblood-bright);   /* the accent means "advance" */
+}
+
+/* back faces of the cover leaf stay dark */
+.cover.-back, .page.cover.-back { background: var(--card); }
+
+/* ---- last leaf: the links (accent = advance) ---- */
+.endpage {
+  background:
+    linear-gradient(270deg, var(--oxblood) 0, var(--oxblood) 10px, transparent 10px),
+    var(--card);
+  border: 1px solid var(--hairline);
+  color: var(--near-white);
+}
+.endpage .inner { text-align: center; justify-content: center; }
+.endpage nav { display: grid; gap: 1.6rem; font-size: clamp(1.1rem, 2.5vw, 1.5rem); }
+.endpage a {
+  color: var(--near-white); text-decoration: none;
+  transition: color 220ms var(--ease);
+}
+.endpage a:hover, .endpage a:focus-visible { color: var(--oxblood-bright); outline: none; }
+.endpage .fin {
+  margin-top: 3.2rem;
+  font-size: 0.8rem; letter-spacing: 0.24em;
+  color: var(--muted);
+}
+
+/* matte paper: soften the library's flip-gloss gradients */
+.stf__item .stf__shadow,
+.stf__item [class*="shadow"] { opacity: 0.5; }

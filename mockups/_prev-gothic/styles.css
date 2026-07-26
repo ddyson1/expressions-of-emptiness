@@ -1,0 +1,241 @@
+/* =========================================================================
+   expressions of emptiness — design system
+   Quiet & minimal. Barbed display type as a rare mark against the void;
+   calm old-style serif for verse.
+   ========================================================================= */
+
+/* ---- Fonts (self-hosted, no third-party requests) --------------------- */
+@font-face {
+  font-family: "Swinger";
+  src: url("fonts/Swinger.woff2") format("woff2"),
+       url("fonts/Swinger.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url("fonts/ebgaramond-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url("fonts/ebgaramond-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---- Tokens ----------------------------------------------------------- */
+:root {
+  /* palette — the void, bone, ash, and one rare ember */
+  --void:      #0b0b0d;
+  --void-soft: #131316;
+  --bone:      #e7e3d9;
+  --bone-dim:  #b7b3aa;
+  --ash:       #86828b;
+  --ember:     #b26a52;
+  --hair:      rgba(231, 227, 217, 0.12);
+  --hair-soft: rgba(231, 227, 217, 0.06);
+
+  /* type */
+  --display: "Swinger", "Georgia", serif;
+  --serif: "EB Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+
+  /* fluid scale */
+  --step--1: clamp(0.82rem, 0.79rem + 0.15vw, 0.9rem);
+  --step-0:  clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+  --step-1:  clamp(1.3rem, 1.2rem + 0.5vw, 1.6rem);
+  --step-2:  clamp(1.7rem, 1.4rem + 1.5vw, 2.4rem);
+  --step-3:  clamp(2.4rem, 1.8rem + 3vw, 4.2rem);
+
+  /* rhythm */
+  --measure: 34rem;         /* comfortable reading width for verse */
+  --gutter: clamp(1.5rem, 5vw, 4rem);
+}
+
+/* ---- Reset-ish -------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--serif);
+  font-size: var(--step-0);
+  line-height: 1.7;
+  font-feature-settings: "liga" 1, "onum" 1, "kern" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* faint vignette so the void has depth, not flatness */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(120% 90% at 50% 12%, transparent 55%, rgba(0,0,0,0.55) 100%);
+}
+
+/* ---- Display type ----------------------------------------------------- */
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: 0.02em;
+}
+
+/* tracked-out micro-labels */
+.kicker {
+  font-family: var(--serif);
+  font-size: var(--step--1);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ash);
+  font-style: normal;
+}
+
+/* ---- Layout ----------------------------------------------------------- */
+.wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---- Hero ------------------------------------------------------------- */
+.hero {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.hero__inner { max-width: 40rem; }
+
+.wordmark {
+  color: var(--bone);
+  font-size: var(--step-3);
+  margin: 0;
+  display: grid;
+  gap: 0.06em;
+}
+.wordmark span { display: block; }
+.wordmark .of {
+  color: var(--ash);
+  font-size: 0.42em;
+  letter-spacing: 0.06em;
+}
+
+.rule {
+  width: 1px;
+  height: clamp(2.5rem, 8vh, 5rem);
+  margin: clamp(1.6rem, 4vh, 2.6rem) auto;
+  background: linear-gradient(var(--hair), transparent);
+}
+
+.tagline {
+  font-style: italic;
+  color: var(--bone-dim);
+  font-size: var(--step-1);
+  margin: 0 auto;
+  max-width: 26rem;
+  text-wrap: balance;
+}
+
+.scroll-cue {
+  margin-top: clamp(3rem, 12vh, 7rem);
+  font-size: var(--step--1);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.scroll-cue .ring { display: block; margin: 0.9rem auto 0; }
+
+/* ---- Divider ring (the emptiness motif) ------------------------------- */
+.ring {
+  width: 12px; height: 12px;
+  border: 1px solid var(--hair);
+  border-radius: 50%;
+}
+.divider {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.2rem;
+  margin: clamp(4rem, 12vh, 8rem) 0;
+  color: var(--ash);
+}
+.divider::before, .divider::after {
+  content: ""; height: 1px; width: min(8rem, 22vw);
+  background: var(--hair);
+}
+
+/* ---- Verse ------------------------------------------------------------ */
+.poem {
+  max-width: var(--measure);
+  margin-inline: auto;
+  text-align: center;
+}
+.poem__title {
+  color: var(--bone);
+  font-size: var(--step-2);
+  margin: 0 0 1.8rem;
+  letter-spacing: 0.03em;
+}
+.poem__body {
+  font-size: var(--step-1);
+  line-height: 1.85;
+  color: var(--bone);
+}
+.poem__body p { margin: 0 0 1.4rem; text-wrap: pretty; }
+.poem__body p:last-child { margin-bottom: 0; }
+.poem__body em { color: var(--bone-dim); }
+
+.poem__meta {
+  margin-top: 2.4rem;
+  font-size: var(--step--1);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* ---- Footer / colophon ------------------------------------------------ */
+.colophon {
+  border-top: 1px solid var(--hair-soft);
+  margin-top: clamp(5rem, 14vh, 9rem);
+  padding: 3rem 0 4rem;
+  text-align: center;
+  color: var(--ash);
+  font-size: var(--step--1);
+  line-height: 2;
+}
+.colophon a { color: var(--bone-dim); text-decoration: none; border-bottom: 1px solid var(--hair); }
+.colophon a:hover { color: var(--ember); border-color: var(--ember); }
+.colophon .sig {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  color: var(--bone-dim);
+  letter-spacing: 0.04em;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+/* ---- Entrance motion -------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .rise { opacity: 0; transform: translateY(12px); animation: rise 1.4s cubic-bezier(.2,.7,.2,1) forwards; }
+  .rise.d1 { animation-delay: 0.15s; }
+  .rise.d2 { animation-delay: 0.45s; }
+  .rise.d3 { animation-delay: 0.8s; }
+  .rise.d4 { animation-delay: 1.15s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  .scroll-cue .ring { animation: breathe 5s ease-in-out infinite; }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.4; transform: translateY(0); }
+    50%      { opacity: 0.9; transform: translateY(4px); }
+  }
+}

@@ -1,0 +1,101 @@
+<style>
+@font-face{font-family:"Swinger";src:url(data:font/woff2;base64,__SWINGER__) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"EB Garamond";src:url(data:font/woff2;base64,__EBG_REG__) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"EB Garamond";src:url(data:font/woff2;base64,__EBG_ITAL__) format("woff2");font-weight:400;font-style:italic;font-display:swap}
+
+:root{
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --serif:"EB Garamond","Iowan Old Style",Palatino,Georgia,serif;
+}
+*{box-sizing:border-box}
+body,.doc{margin:0}
+.doc{background:#eceae6;font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+/* quiet chrome */
+.head{max-width:52rem;margin:0 auto;padding:clamp(3rem,8vw,5.5rem) clamp(1.4rem,5vw,3rem) clamp(1.5rem,4vw,2.5rem)}
+.head .eyebrow{font-size:.7rem;letter-spacing:.32em;text-transform:uppercase;color:#9c9a94;margin:0 0 1rem}
+.head h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,4.5vw,2.8rem);line-height:1.1;color:#26251f;margin:0 0 .9rem}
+.head p{color:#6f6d66;font-size:1rem;line-height:1.6;max-width:40rem;margin:0}
+.head p b{color:#3a382f;font-weight:600}
+
+.canvas{position:relative;min-height:100vh;overflow:hidden}
+.canvas .tag{position:absolute;bottom:clamp(1.2rem,3vw,2rem);right:clamp(1.2rem,3vw,2rem);
+  font-family:var(--sans);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:#b7b5ae}
+.col{max-width:32rem}
+
+/* ---- A · bare (pure white, serif, left) ---- */
+.m1{background:#ffffff;color:#1b1b1b}
+.m1 .col{margin:0 0 0 clamp(1.5rem,11vw,9rem);padding:22vh 1.4rem 0 0}
+.m1 .wm{font-family:var(--serif);font-style:italic;font-size:.95rem;color:#a6a49d;margin:0 0 clamp(4rem,11vh,7rem)}
+.m1 .poem{font-family:var(--serif);font-size:clamp(1.2rem,2.2vw,1.5rem);line-height:1.95;color:#1f1e1c}
+.m1 .poem p{margin:0 0 1.5rem}
+.m1 .poem em{color:#7a786f}
+.m1 .tag{color:#cbc9c2}
+
+/* ---- B · centered, one Swinger mark ---- */
+.m2{background:#faf9f6;color:#232320}
+.m2 .col{max-width:34rem;margin:0 auto;text-align:center;padding:15vh 1.4rem 0}
+.m2 .wm{font-family:"Swinger",serif;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:.03em;color:#1b1a17;margin:0 0 clamp(3.5rem,10vh,6rem)}
+.m2 .poem{font-family:var(--serif);font-size:clamp(1.2rem,2.2vw,1.5rem);line-height:1.95;color:#26251f}
+.m2 .poem p{margin:0 0 1.5rem}
+.m2 .poem em{color:#79776d}
+
+/* ---- C · modern sans (pure white, airy) ---- */
+.m3{background:#ffffff;color:#222}
+.m3 .col{margin:0 0 0 clamp(1.5rem,11vw,9rem);padding:20vh 1.4rem 0 0}
+.m3 .wm{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:#b5b3ac;margin:0 0 clamp(4rem,11vh,7rem)}
+.m3 .poem{font-family:var(--sans);font-weight:300;font-size:clamp(1.08rem,2vw,1.32rem);line-height:2.05;letter-spacing:.004em;color:#2a2a28}
+.m3 .poem p{margin:0 0 1.6rem}
+.m3 .poem em{font-style:normal;color:#8f8d87}
+.m3 .tag{color:#cbc9c2}
+
+.tail{padding:2.5rem clamp(1.4rem,5vw,3rem) 4rem;text-align:center;color:#a4a29b;font-size:.78rem}
+</style>
+
+<div class="doc">
+
+  <header class="head">
+    <p class="eyebrow">expressions of emptiness &middot; minimal</p>
+    <h1>The writing, and almost nothing else.</h1>
+    <p>Three quiet takes on a white page. The differences are small on purpose &mdash; typeface, alignment, and how much of the <b>Swinger</b> mark survives. <b>A</b> and <b>C</b> drop the gothic font from the page entirely; <b>B</b> keeps it as a single small wordmark. Verse is placeholder.</p>
+  </header>
+
+  <!-- A -->
+  <section class="canvas m1">
+    <div class="col">
+      <p class="wm">expressions of emptiness</p>
+      <div class="poem">
+        <p>the room keeps the shape of you<br>the way a glass keeps water gone &mdash;<br><em>curved around an absence,</em><br>still, and cold, and clear.</p>
+        <p>i have learned the weight of quiet.<br>it is not nothing.<br>it is everything,<br>held very carefully, and empty.</p>
+      </div>
+    </div>
+    <span class="tag">A &middot; bare &mdash; white, serif, left</span>
+  </section>
+
+  <!-- B -->
+  <section class="canvas m2">
+    <div class="col">
+      <p class="wm">expressions of emptiness</p>
+      <div class="poem">
+        <p>the room keeps the shape of you<br>the way a glass keeps water gone &mdash;<br><em>curved around an absence,</em><br>still, and cold, and clear.</p>
+        <p>i have learned the weight of quiet.<br>it is not nothing.<br>it is everything,<br>held very carefully, and empty.</p>
+      </div>
+    </div>
+    <span class="tag">B &middot; centered &mdash; one Swinger mark</span>
+  </section>
+
+  <!-- C -->
+  <section class="canvas m3">
+    <div class="col">
+      <p class="wm">expressions of emptiness</p>
+      <div class="poem">
+        <p>the room keeps the shape of you<br>the way a glass keeps water gone &mdash;<br><em>curved around an absence,</em><br>still, and cold, and clear.</p>
+        <p>i have learned the weight of quiet.<br>it is not nothing.<br>it is everything,<br>held very carefully, and empty.</p>
+      </div>
+    </div>
+    <span class="tag">C &middot; modern &mdash; white, sans, airy</span>
+  </section>
+
+  <p class="tail">expressions of emptiness &middot; minimal study &middot; placeholder verse</p>
+
+</div>

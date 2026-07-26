@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>expressions of emptiness</title>
+  <meta name="description" content="A personal collection of poetry. A notebook — turn the pages.">
+
+  <meta property="og:title" content="expressions of emptiness">
+  <meta property="og:description" content="A personal collection of poetry.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://expressions-of-emptiness.com">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/Swinger.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="book-wrap">
+    <div class="book-col">
+    <div id="book">
+
+      <!-- cover (soft: hard pages wedge StPageFlip's portrait mode) -->
+      <div class="page cover">
+        <div class="inner">
+          <div class="mark"><span>expressions</span><span class="of">of</span><span>emptiness</span></div>
+          <p class="open-hint">by dd</p>
+        </div>
+      </div>
+
+      <!-- PLACEHOLDER poems — replace each .poem with your own writing -->
+      <div class="page">
+        <div class="inner">
+          <div class="poem">
+            <p>the room keeps the shape of you</p>
+            <p>the way a glass keeps water gone &mdash;</p>
+            <p class="dim">curved around an absence,</p>
+            <p>still, and cold, and clear.</p>
+          </div>
+          <span class="folio">1</span>
+        </div>
+      </div>
+
+      <div class="page -back">
+        <div class="inner">
+          <div class="poem">
+            <p>i have learned the weight of quiet.</p>
+            <p>it is not nothing.</p>
+            <p>it is everything,</p>
+            <p>held very carefully, and empty.</p>
+          </div>
+          <span class="folio">2</span>
+        </div>
+      </div>
+
+      <div class="page">
+        <div class="inner">
+          <div class="poem">
+            <p>some mornings i am a doorway</p>
+            <p>with no house attached &mdash;</p>
+            <p class="dim">wind moving through</p>
+            <p>where a life should be.</p>
+          </div>
+          <span class="folio">3</span>
+        </div>
+      </div>
+
+      <div class="page -back">
+        <div class="inner">
+          <div class="poem">
+            <p>and still i keep the light on.</p>
+            <p>not for anyone.</p>
+            <p>just to see</p>
+            <p>the shape of the dark.</p>
+          </div>
+          <span class="folio">4</span>
+        </div>
+      </div>
+
+      <!-- about, inside the book -->
+      <!-- PLACEHOLDER about text — replace with your own words -->
+      <div class="page">
+        <div class="inner">
+          <div class="poem about">
+            <p class="dim">about</p>
+            <p>poems written in the empty hours.</p>
+            <p>a notebook left open<br>for whoever finds it.</p>
+          </div>
+          <span class="folio">about</span>
+        </div>
+      </div>
+
+      <!-- last leaf: contact -->
+      <div class="page endpage">
+        <div class="inner">
+          <nav aria-label="site">
+            <a href="mailto:dyson@plotflow.io">contact</a>
+          </nav>
+          <p class="fin">expressions of emptiness &mdash; by dd</p>
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+
+  <script src="js/page-flip.browser.js"></script>
+  <script>
+    (function () {
+      var el = document.getElementById('book');
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // 3:4 notebook ratio; 'stretch' fits the #book container, and because the
+      // container is narrower than two page-widths the book renders as a
+      // one-page portrait notebook.
+      var pageFlip = new St.PageFlip(el, {
+        width: 375,
+        height: 500,
+        size: 'stretch',
+        minWidth: 260, maxWidth: 520,
+        minHeight: 340, maxHeight: 700,
+        usePortrait: true,
+        showCover: true,
+        maxShadowOpacity: 0.12,   /* matte paper, not gloss */
+        flippingTime: reduced ? 1 : 800,
+        mobileScrollSupport: false,
+        showPageCorners: true
+      });
+      pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+      window.pageFlip = pageFlip;  /* handy for console debugging */
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === ' ') { pageFlip.flipNext(); e.preventDefault(); }
+        else if (e.key === 'ArrowLeft') { pageFlip.flipPrev(); e.preventDefault(); }
+      });
+    })();
+  </script>
+
+</body>
+</html>

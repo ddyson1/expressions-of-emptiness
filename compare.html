@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swinger comparison</title>
+<style>
+@font-face{font-family:"Swinger";src:url("fonts/Swinger.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"EB Garamond";src:url("fonts/ebgaramond-regular.woff2") format("woff2");font-weight:400;font-style:normal}
+@font-face{font-family:"EB Garamond";src:url("fonts/ebgaramond-italic.woff2") format("woff2");font-weight:400;font-style:italic}
+:root{--void:#0b0b0d;--bone:#e7e3d9;--bone-dim:#b7b3aa;--ash:#86828b;--hair:rgba(231,227,217,.12)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--bone);font-family:"EB Garamond",Georgia,serif;line-height:1.7}
+.col{max-width:38rem;margin:0 auto;padding:3.5rem 1.5rem}
+.tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--ash);text-align:center;margin:0 0 .4rem}
+.note{color:var(--ash);font-size:.95rem;text-align:center;font-style:italic;margin:0 0 2.4rem;max-width:26rem;margin-inline:auto}
+hr{border:0;border-top:1px solid var(--hair);max-width:38rem;margin:1rem auto}
+
+/* ---- A: everything in Swinger (tuned as hard as it'll go for reading) ---- */
+.sw .title{font-family:"Swinger";font-size:2.2rem;text-align:center;margin:0 0 1.6rem;letter-spacing:.03em}
+.sw .body{font-family:"Swinger";text-align:center;font-size:1.45rem;line-height:2.05;letter-spacing:.06em}
+.sw .body p{margin:0 0 1.3rem}
+
+/* ---- B: the pairing (Swinger title, Garamond verse) ---- */
+.pair .title{font-family:"Swinger";font-size:2.2rem;text-align:center;margin:0 0 1.6rem;letter-spacing:.03em}
+.pair .body{text-align:center;font-size:1.35rem;line-height:1.85}
+.pair .body p{margin:0 0 1.3rem}
+.pair .body em{color:var(--bone-dim)}
+</style>
+</head>
+<body>
+
+<div class="col sw">
+  <p class="tag">A · everything in Swinger</p>
+  <p class="note">the same verse, every line set in the display font — tuned as legible as it gets (larger, tracked out, extra leading)</p>
+  <h2 class="title">hollow hour</h2>
+  <div class="body">
+    <p>the room keeps the shape of you<br>the way a glass keeps water gone</p>
+    <p>i have learned the weight of quiet<br>it is not nothing</p>
+  </div>
+</div>
+
+<hr>
+
+<div class="col pair">
+  <p class="tag">B · the pairing</p>
+  <p class="note">barbed title in Swinger, verse in EB Garamond — display type as a rare sharp mark</p>
+  <h2 class="title">hollow hour</h2>
+  <div class="body">
+    <p>the room keeps the shape of you<br>the way a glass keeps water gone</p>
+    <p>i have learned the weight of quiet<br><em>it is not nothing</em></p>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Swinger desktop formats — commercial font (© Ronny Studio); the license
+# covers web embedding, so only the web formats (.woff/.woff2) are committed.
+# Desktop binaries stay local.
+fonts/Swinger.otf
+fonts/Swinger.ttf

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>expressions of emptiness — notebook</title>
+<style>
+@font-face{font-family:"Swinger";src:url(data:font/woff2;base64,__SWINGER__) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"EB Garamond";src:url(data:font/woff2;base64,__EBG_REG__) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+
+:root{
+  --paper:#ffffff; --paper-back:#f7f6f2; --ink:#1c1c1a; --ink-dim:#6f6d67; --faint:#a8a69f;
+  --display:"Swinger","Georgia",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  min-height:100svh;background:#e9e7e1;color:var(--ink);
+  font-family:var(--display);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 30%, #efedE7 0%, #e4e2db 70%, #dcdad3 100%);
+}
+
+.scene{
+  perspective:2200px; perspective-origin:50% 45%;
+  width:min(92vw,440px); height:min(76vh,600px);
+  display:grid; place-items:center; touch-action:none;
+}
+.book{
+  position:relative; width:100%; height:100%;
+  transform-style:preserve-3d;
+}
+/* the closed-book edge stack (gives the page some thickness) */
+.book::before{
+  content:""; position:absolute; top:6px; bottom:6px; right:-4px; width:8px;
+  background:linear-gradient(#fff,#e7e5df); border-radius:0 4px 4px 0;
+  box-shadow:2px 0 6px rgba(0,0,0,.12); z-index:0;
+}
+
+.leaf{
+  position:absolute; inset:0; transform-origin:left center;
+  transform-style:preserve-3d; transition:transform .75s cubic-bezier(.2,.72,.2,1);
+  cursor:grab;
+}
+.leaf.dragging{transition:none;cursor:grabbing}
+
+.face{
+  position:absolute; inset:0; backface-visibility:hidden;
+  background:var(--paper); border-radius:3px 7px 7px 3px;
+  box-shadow:0 18px 50px rgba(0,0,0,.16), inset 0 0 70px rgba(0,0,0,.015);
+  display:flex; flex-direction:column; justify-content:center;
+  padding:clamp(2.2rem,7%,3.4rem);
+  overflow:hidden;
+}
+.face.back{
+  transform:rotateY(180deg); background:var(--paper-back);
+  box-shadow:0 18px 50px rgba(0,0,0,.16), inset 0 0 90px rgba(0,0,0,.03);
+}
+/* soft shading toward the spine + a sheen that deepens as the page turns */
+.face .sheen{
+  position:absolute; inset:0; pointer-events:none; opacity:0;
+  background:linear-gradient(90deg, rgba(0,0,0,.22), rgba(0,0,0,0) 42%);
+  transition:opacity .2s linear;
+}
+
+.poem{
+  font-family:var(--display); text-align:left;
+  font-size:clamp(1.1rem,.9rem+.9vw,1.5rem); line-height:2.1; letter-spacing:.05em;
+}
+.poem p{margin:0 0 1.5rem}
+.poem p:last-child{margin:0}
+.poem p.dim{color:var(--ink-dim)}
+
+.folio{
+  position:absolute; left:0; right:0; bottom:clamp(1rem,4%,1.6rem);
+  text-align:center; font-family:var(--sans); font-size:.7rem; letter-spacing:.28em;
+  color:var(--faint);
+}
+
+/* dog-ear on the current (top) page inviting a drag */
+.leaf.current .front::after{
+  content:""; position:absolute; right:0; bottom:0; width:44px; height:44px;
+  background:linear-gradient(135deg, rgba(0,0,0,0) 50%, rgba(0,0,0,.05) 52%, rgba(0,0,0,.13));
+  border-radius:0 0 7px 0; cursor:grab;
+  transition:width .25s ease,height .25s ease;
+}
+.leaf.current .front:hover::after{width:60px;height:60px}
+
+.hint{
+  position:fixed; bottom:clamp(1.2rem,4vh,2.4rem); left:0; right:0; text-align:center;
+  font-family:var(--sans); font-size:.72rem; letter-spacing:.24em; text-transform:uppercase;
+  color:#8f8d86; pointer-events:none; transition:opacity .6s ease;
+}
+.title-tab{
+  position:fixed; top:clamp(1.1rem,4vh,2rem); left:0; right:0; text-align:center;
+  font-family:var(--display); font-size:1rem; letter-spacing:.05em; color:#57554f;
+}
+
+@media (prefers-reduced-motion:reduce){ .leaf{transition:transform .001s} }
+</style>
+</head>
+<body>
+
+  <div class="title-tab">expressions of emptiness</div>
+
+  <div class="scene">
+    <div class="book" id="book" aria-label="notebook of poems" tabindex="0"></div>
+  </div>
+
+  <p class="hint" id="hint">drag the corner to turn the page</p>
+
+<script>
+(function(){
+  // PLACEHOLDER poems — one per page. Replace with your own.
+  var poems=[
+    [["the room keeps the shape of you"],["the way a glass keeps water gone —"],["curved around an absence,",1],["still, and cold, and clear."]],
+    [["i have learned the weight of quiet."],["it is not nothing."],["it is everything,"],["held very carefully, and empty."]],
+    [["some mornings i am a doorway"],["with no house attached —"],["wind moving through",1],["where a life should be."]],
+    [["and still i keep the light on."],["not for anyone."],["just to see"],["the shape of the dark."]]
+  ];
+
+  var book=document.getElementById('book'), hint=document.getElementById('hint');
+  var total=poems.length, current=0, leaves=[];
+
+  poems.forEach(function(lines,i){
+    var leaf=document.createElement('div'); leaf.className='leaf'; leaf.dataset.i=i;
+    var front=document.createElement('div'); front.className='face front';
+    var sh1=document.createElement('div'); sh1.className='sheen'; front.appendChild(sh1);
+    var art=document.createElement('div'); art.className='poem';
+    lines.forEach(function(l){var p=document.createElement('p');p.textContent=l[0];if(l[1])p.className='dim';art.appendChild(p);});
+    front.appendChild(art);
+    var fol=document.createElement('span'); fol.className='folio'; fol.textContent=(i+1)+' / '+total; front.appendChild(fol);
+    var back=document.createElement('div'); back.className='face back';
+    var sh2=document.createElement('div'); sh2.className='sheen'; back.appendChild(sh2);
+    leaf.appendChild(front); leaf.appendChild(back);
+    book.appendChild(leaf); leaves.push(leaf);
+  });
+
+  function sheen(leaf,a){ // a: 0..180
+    var t=Math.sin(Math.max(0,Math.min(180,a))*Math.PI/180);
+    var s=leaf.querySelectorAll('.sheen'); s.forEach(function(el){el.style.opacity=t*0.9;});
+  }
+  function layout(){
+    leaves.forEach(function(leaf,i){
+      var turned=i<current;
+      leaf.style.transition=''; // ensure animated
+      leaf.style.transform='rotateY('+(turned?-180:0)+'deg)';
+      leaf.style.zIndex=turned? i : (total-i);
+      leaf.classList.toggle('current', i===current);
+      sheen(leaf,0);
+    });
+    hint.style.opacity = current>0 ? 0 : 1;
+  }
+  layout();
+
+  var drag=null;
+  book.addEventListener('pointerdown',function(e){
+    var r=book.getBoundingClientRect(), mid=r.left+r.width/2;
+    if(e.clientX>=mid && current<total-1){ drag={leaf:leaves[current],dir:'fwd',r:r,p:0,moved:false}; }
+    else if(e.clientX<mid && current>0){ drag={leaf:leaves[current-1],dir:'back',r:r,p:0,moved:false}; }
+    else return;
+    drag.leaf.classList.add('dragging'); drag.leaf.style.zIndex=999; drag.startX=e.clientX;
+    try{book.setPointerCapture(e.pointerId);}catch(_){}
+    e.preventDefault();
+  });
+  book.addEventListener('pointermove',function(e){
+    if(!drag) return;
+    if(Math.abs(e.clientX-drag.startX)>4) drag.moved=true;
+    var r=drag.r, angle, p;
+    if(drag.dir==='fwd'){ p=(r.right-e.clientX)/r.width; }
+    else { p=(e.clientX-r.left)/r.width; }
+    p=Math.max(0,Math.min(1,p)); drag.p=p;
+    angle=(drag.dir==='fwd')? -180*p : (-180+180*p);
+    drag.leaf.style.transform='rotateY('+angle+'deg)';
+    sheen(drag.leaf, Math.abs(angle));
+  });
+  function endDrag(){
+    if(!drag) return;
+    var leaf=drag.leaf; leaf.classList.remove('dragging'); leaf.style.zIndex='';
+    var complete = drag.moved ? (drag.p>0.5) : true; // a tap completes the turn
+    if(complete){ if(drag.dir==='fwd') current++; else current--; }
+    drag=null; layout();
+  }
+  book.addEventListener('pointerup',endDrag);
+  book.addEventListener('pointercancel',endDrag);
+
+  book.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '){ if(current<total-1){current++;layout();} e.preventDefault(); }
+    else if(e.key==='ArrowLeft'){ if(current>0){current--;layout();} e.preventDefault(); }
+  });
+})();
+</script>
+</body>
+</html>
