@@ -105,6 +105,12 @@
     </div>
   </div>
 
+  <nav class="pager" aria-label="pages">
+    <button id="pv" type="button" aria-label="previous page">&#8249; back</button>
+    <span class="where" id="where">cover</span>
+    <button id="nx" type="button" aria-label="next page">next &#8250;</button>
+  </nav>
+
   <script src="js/page-flip.browser.js"></script>
   <script>
     (function () {
@@ -134,6 +140,26 @@
         if (e.key === 'ArrowRight' || e.key === ' ') { pageFlip.flipNext(); e.preventDefault(); }
         else if (e.key === 'ArrowLeft') { pageFlip.flipPrev(); e.preventDefault(); }
       });
+
+      /* pager */
+      var pv = document.getElementById('pv'),
+          nx = document.getElementById('nx'),
+          where = document.getElementById('where');
+      var last = pageFlip.getPageCount() - 1;
+      function label(i) {
+        if (i === 0) return 'cover';
+        if (i >= last - 1) return 'the end';
+        return 'page ' + i;
+      }
+      function paint(i) {
+        where.textContent = label(i);
+        pv.disabled = i <= 0;
+        nx.disabled = i >= last;
+      }
+      paint(0);
+      pv.addEventListener('click', function () { pageFlip.flipPrev(); });
+      nx.addEventListener('click', function () { pageFlip.flipNext(); });
+      pageFlip.on('flip', function (e) { paint(e.data); });
     })();
   </script>
 
