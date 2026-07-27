@@ -39,7 +39,7 @@
   <script>
   (function () {
     /* ---- config ---- */
-    var WORKER_URL = "";   /* deployed eoe-live origin, e.g. https://eoe-live.xxx.workers.dev */
+    var WORKER_URL = "https://eoe-live.plotflow-io.workers.dev";
     var qs = new URLSearchParams(location.search);
     var wanted = (qs.get('notebook') || '001').replace(/[^0-9]/g, '') || '001';
     var isArchiveView = qs.has('notebook');
