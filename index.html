@@ -26,7 +26,6 @@
 
   <aside class="pane" id="pane" aria-label="contents"></aside>
 
-  <div class="corner left"><button id="reveal" type="button">&larr; contents</button></div>
   <div class="corner right" id="cornerPresence"></div>
 
   <div class="book-wrap">
@@ -48,19 +47,12 @@
     var pane = document.getElementById('pane');
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* ---- study / immersion / lights ---- */
-    if (localStorage.getItem('eoe_mode') === 'immersed') document.body.classList.add('immersed');
-    function toggleImmersion() {
-      document.body.classList.toggle('immersed');
-      localStorage.setItem('eoe_mode', document.body.classList.contains('immersed') ? 'immersed' : 'study');
-      if (window.pageFlip) { try { window.pageFlip.update(); } catch (_) {} }
-    }
+    /* ---- lights ---- */
     function toggleLights() {
       var light = document.documentElement.getAttribute('data-theme') === 'light';
       if (light) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('eoe_theme', 'dark'); }
       else { document.documentElement.setAttribute('data-theme', 'light'); localStorage.setItem('eoe_theme', 'light'); }
     }
-    document.getElementById('reveal').addEventListener('click', toggleImmersion);
 
     /* ---- tiny DOM helpers ---- */
     function el(tag, cls, text) {
@@ -87,7 +79,7 @@
 
     function renderEntry(inner, e) {
       inner.textContent = '';
-      var poem = el('div', 'poem');
+      var poem = el('div', 'poem' + (e.lines.length > 9 ? ' long' : ''));
       e.lines.forEach(function (line) {
         var dim = line.charAt(0) === '~';
         poem.appendChild(el('p', dim ? 'dim' : null, dim ? line.slice(1) : line));
@@ -132,8 +124,13 @@
         if (!document.getElementById('liveedit')) {
           body.textContent = '';
           var ta = el('textarea', 'liveedit');
-          ta.id = 'liveedit'; ta.maxLength = 600;
+          ta.id = 'liveedit'; ta.maxLength = 1000;
           ta.placeholder = 'write…';
+          ta.rows = 2;
+          ta.addEventListener('input', function () {   /* grow with the words */
+            ta.style.height = 'auto';
+            ta.style.height = ta.scrollHeight + 'px';
+          });
           var sg = el('input', 'livesign');
           sg.id = 'livesign'; sg.maxLength = 40; sg.type = 'text';
           sg.placeholder = 'signed (optional)';
@@ -153,7 +150,8 @@
       } else if (nb.pencil && nb.pencil.text !== undefined && nb.pencil.text !== null && penHeld) {
         ghost.innerHTML = '✎ <b>a stranger</b> is writing';
         body.textContent = '';
-        var p = el('div', 'pencil', nb.pencil.text || '');
+        var txt = nb.pencil.text || '';
+        var p = el('div', 'pencil' + (txt.split('\n').length > 9 ? ' long' : ''), txt);
         p.appendChild(el('span', 'caret'));
         body.appendChild(p);
       } else {
@@ -299,9 +297,7 @@
       var ops = el('div', 'paneops');
       var bl = el('button', null, 'lights');
       bl.addEventListener('click', toggleLights);
-      var bi = el('button', null, 'immersion →');
-      bi.addEventListener('click', toggleImmersion);
-      ops.appendChild(bl); ops.appendChild(bi);
+      ops.appendChild(bl);
       pane.appendChild(ops);
 
       var corner = document.getElementById('cornerPresence');

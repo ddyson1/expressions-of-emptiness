@@ -2,51 +2,6 @@
   "id": "001",
   "started": "2026-07-26",
   "pages": 48,
-  "note": "Lines starting with ~ render dimmed. Entries are placeholder until replaced by dd or approved community submissions.",
-  "entries": [
-    {
-      "n": 1,
-      "name": "dd",
-      "lines": [
-        "the room keeps the shape of you",
-        "the way a glass keeps water gone —",
-        "~curved around an absence,",
-        "still, and cold, and clear."
-      ],
-      "placeholder": true
-    },
-    {
-      "n": 2,
-      "name": "dd",
-      "lines": [
-        "i have learned the weight of quiet.",
-        "it is not nothing.",
-        "it is everything,",
-        "held very carefully, and empty."
-      ],
-      "placeholder": true
-    },
-    {
-      "n": 3,
-      "name": "dd",
-      "lines": [
-        "some mornings i am a doorway",
-        "with no house attached —",
-        "~wind moving through",
-        "where a life should be."
-      ],
-      "placeholder": true
-    },
-    {
-      "n": 4,
-      "name": "dd",
-      "lines": [
-        "and still i keep the light on.",
-        "not for anyone.",
-        "just to see",
-        "the shape of the dark."
-      ],
-      "placeholder": true
-    }
-  ]
+  "note": "Static fallback for when the live engine is unreachable. The engine (eoe-live) is the source of truth for the open notebook. Lines starting with ~ render dimmed.",
+  "entries": []
 }

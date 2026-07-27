@@ -91,11 +91,10 @@ body {
   overflow: hidden;
   transition: background 400ms var(--ease);
 }
-/* study mode: the contents pane claims the left edge on wide screens */
+/* the contents pane claims the left edge on wide screens */
 @media (min-width: 701px) {
-  body:not(.immersed) { padding-left: 15.5rem; }
-  body:not(.immersed) .tabs { display: none; }
-  body.immersed .pane { transform: translateX(-100%); }
+  body { padding-left: 15.5rem; }
+  .tabs { display: none; }
 }
 /* film grain so the dark reads as a surface, not a void of pixels */
 body::before {
@@ -119,7 +118,9 @@ body::before {
 /* the library measures #book's parent to pick portrait vs landscape.
    Wide enough for a two-page spread on desktop (cover alone, then both
    sides of the open book); narrow viewports fall back to one page. */
-.book-col { width: min(94vw, 56rem); }
+/* the height term keeps the whole book inside the viewport —
+   the page itself must never scroll */
+.book-col { width: min(94vw, 56rem, calc((100svh - 5rem) * 1.45)); }
 #book { touch-action: none; }
 
 /* pages */
@@ -287,17 +288,11 @@ body::before {
 }
 .pane .paneops button:hover { color: var(--oxblood-bright); }
 
-/* immersion chrome: corner controls */
-.corner { position: fixed; top: 1rem; z-index: 30; font-size: 0.76rem; letter-spacing: 0.1em; color: var(--chrome-mut); }
-.corner button { all: unset; cursor: pointer; color: inherit; font-family: var(--display); }
-.corner button:hover { color: var(--oxblood-bright); }
-.corner.left { left: 1.2rem; display: none; }
+/* corner presence (mobile only — desktop presence lives in the pane) */
+.corner { position: fixed; top: 1rem; z-index: 30; font-size: 0.76rem; letter-spacing: 0.1em; }
 .corner.right { right: 1.2rem; color: var(--chrome-dim); }
-body.immersed .corner.left { display: block; }
-@media (min-width: 701px) {
-  body:not(.immersed) .corner.right { display: none; } /* presence lives in the pane */
-}
-@media (max-width: 700px) { .pane, .corner.left { display: none !important; } }
+@media (min-width: 701px) { .corner.right { display: none; } }
+@media (max-width: 700px) { .pane { display: none !important; } }
 
 /* ---- the live page ---- */
 .ghostline { text-align: center; color: #b5b3aa; font-size: 0.72rem; letter-spacing: 0.16em; margin: 0 0 1.4rem; }
@@ -307,11 +302,16 @@ body.immersed .corner.left { display: block; }
 @keyframes blink { 50% { opacity: 0 } }
 .liveedit {
   font-family: var(--display);
-  font-size: clamp(1rem, 0.85rem + 0.8vw, 1.45rem);
-  line-height: 2.1; letter-spacing: 0.05em;
+  font-size: clamp(0.95rem, 0.8rem + 0.7vw, 1.25rem);
+  line-height: 2; letter-spacing: 0.05em;
   color: var(--ink); background: transparent; border: 0; outline: none;
-  width: 100%; min-height: 10rem; resize: none; padding: 0;
+  width: 100%; min-height: 4rem; resize: none; padding: 0;
+  overflow: hidden;   /* autosizes to content — never a scrollbar */
 }
+/* long entries settle into a smaller hand so the page never scrolls */
+.poem.long { font-size: clamp(0.85rem, 0.72rem + 0.6vw, 1.05rem); line-height: 1.8; }
+.poem.long p { margin-bottom: 1rem; }
+.pencil.long { font-size: clamp(0.85rem, 0.72rem + 0.6vw, 1.05rem); line-height: 1.8; }
 .livesign {
   font-family: var(--display); font-size: 0.95rem; letter-spacing: 0.05em;
   color: var(--ink-dim); background: transparent;

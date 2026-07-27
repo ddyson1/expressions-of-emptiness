@@ -14,7 +14,7 @@
 import { DurableObject } from 'cloudflare:workers';
 
 const BANNED = ['viagra', 'casino', 'crypto giveaway', 'http://', 'https://'];
-const MAX_CHARS = 600;
+const MAX_CHARS = 1000;
 const INK_IDLE_MS = 2 * 60 * 1000;   /* quiet time before pencil sets */
 const EMPTY_PEN_MS = 90 * 1000;      /* pen held but nothing written */
 const ALARM_TICK_MS = 30 * 1000;
@@ -222,7 +222,7 @@ export class Notebook extends DurableObject {
     const entry = {
       n: pencil.n,
       name: (pencil.sign || '').trim() || 'a stranger',
-      lines: pencil.text.split(/\r?\n/).map((l) => l.trimEnd()).filter(Boolean).slice(0, 14),
+      lines: pencil.text.split(/\r?\n/).map((l) => l.trimEnd()).filter(Boolean).slice(0, 24),
       inked: new Date().toISOString()
     };
     entries.push(entry);
