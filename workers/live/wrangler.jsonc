@@ -1,0 +1,27 @@
+{
+  // eoe-live: the live notebook engine (one Durable Object per notebook)
+  // Deploy: npx wrangler deploy  (after login + secrets — see README)
+  "name": "eoe-live",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-26",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  "durable_objects": {
+    "bindings": [{ "name": "NOTEBOOK", "class_name": "Notebook" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Notebook"] }],
+
+  "vars": {
+    "ALLOWED_ORIGINS": "https://expressions-of-emptiness.com,https://www.expressions-of-emptiness.com,https://ddyson1.github.io,http://127.0.0.1:8790",
+    "PAGES_PER_NOTEBOOK": "48",
+    "KILLED": "false"
+  }
+
+  // Secrets (wrangler secret put):
+  //   OWNER_KEY — the eraser/seed key. Devin-only endpoints.
+}

@@ -4,18 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>expressions of emptiness</title>
-  <meta name="description" content="A communal notebook of poetry. Turn the pages; fill one.">
+  <meta name="description" content="A living communal notebook of poetry. Watch the pages fill; hold the pen.">
 
   <meta property="og:title" content="expressions of emptiness">
-  <meta property="og:description" content="A communal notebook of poetry. Turn the pages; fill one.">
+  <meta property="og:description" content="A living communal notebook of poetry.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://expressions-of-emptiness.com">
 
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/Swinger.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
+  <script>
+    /* theme before paint — no flash */
+    (function () {
+      var t = localStorage.getItem('eoe_theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
 </head>
 <body>
+
+  <aside class="pane" id="pane" aria-label="contents"></aside>
+
+  <div class="corner left"><button id="reveal" type="button">&larr; contents</button></div>
+  <div class="corner right" id="cornerPresence"></div>
 
   <div class="book-wrap">
     <div class="book-col">
@@ -27,13 +39,28 @@
   <script>
   (function () {
     /* ---- config ---- */
-    var WORKER_URL = "";   /* set to the Cloudflare Worker origin to open submissions */
+    var WORKER_URL = "";   /* deployed eoe-live origin, e.g. https://eoe-live.xxx.workers.dev */
     var qs = new URLSearchParams(location.search);
     var wanted = (qs.get('notebook') || '001').replace(/[^0-9]/g, '') || '001';
     var isArchiveView = qs.has('notebook');
 
     var book = document.getElementById('book');
+    var pane = document.getElementById('pane');
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---- study / immersion / lights ---- */
+    if (localStorage.getItem('eoe_mode') === 'immersed') document.body.classList.add('immersed');
+    function toggleImmersion() {
+      document.body.classList.toggle('immersed');
+      localStorage.setItem('eoe_mode', document.body.classList.contains('immersed') ? 'immersed' : 'study');
+      if (window.pageFlip) { try { window.pageFlip.update(); } catch (_) {} }
+    }
+    function toggleLights() {
+      var light = document.documentElement.getAttribute('data-theme') === 'light';
+      if (light) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('eoe_theme', 'dark'); }
+      else { document.documentElement.setAttribute('data-theme', 'light'); localStorage.setItem('eoe_theme', 'light'); }
+    }
+    document.getElementById('reveal').addEventListener('click', toggleImmersion);
 
     /* ---- tiny DOM helpers ---- */
     function el(tag, cls, text) {
@@ -42,6 +69,103 @@
       if (text != null) d.textContent = text;
       return d;
     }
+
+    /* ---- live client state ---- */
+    var nb = null;            /* {id, pages, entries, open, pencil, presence} */
+    var ws = null, wsOk = false, pendingTake = false, youHold = false;
+    var pageInner = {};       /* page number -> .inner element */
+    var chromeInner = {};     /* 'about'|'shelf'|'end' -> inner */
+    var pageFlip = null, last = 0;
+
+    function firstWords(entry) {
+      var s = (entry.lines && entry.lines[0]) || '';
+      s = s.replace(/^~/, '');
+      return s.length > 26 ? s.slice(0, 26) + '…' : s;
+    }
+
+    /* ---------- page content renderers (update in place) ---------- */
+
+    function renderEntry(inner, e) {
+      inner.textContent = '';
+      var poem = el('div', 'poem');
+      e.lines.forEach(function (line) {
+        var dim = line.charAt(0) === '~';
+        poem.appendChild(el('p', dim ? 'dim' : null, dim ? line.slice(1) : line));
+      });
+      inner.appendChild(poem);
+      inner.appendChild(el('p', 'sig', '— ' + (e.name || 'a stranger')));
+      inner.appendChild(el('span', 'folio', String(e.n)));
+    }
+
+    function renderBlank(inner, n) {
+      inner.textContent = '';
+      inner.appendChild(el('p', 'waiting', isArchiveView ? '' : 'still empty'));
+      inner.appendChild(el('span', 'folio', String(n)));
+    }
+
+    function renderLivePage(inner, n) {
+      inner.textContent = '';
+      var ghost = el('p', 'ghostline');
+      ghost.id = 'ghostline';
+      var body = el('div');
+      body.id = 'livebody';
+      inner.appendChild(ghost);
+      inner.appendChild(body);
+      inner.appendChild(el('span', 'folio', String(n)));
+      paintLive();
+    }
+
+    function paintLive() {
+      var ghost = document.getElementById('ghostline');
+      var body = document.getElementById('livebody');
+      if (!ghost || !body || !nb) return;
+
+      if (isArchiveView) { ghost.textContent = ''; return; }
+
+      if (!wsOk) {
+        ghost.textContent = 'the pen is quiet tonight';
+        body.textContent = '';
+        return;
+      }
+      if (youHold) {
+        ghost.textContent = '✎ the pen is yours — quiet sets the page';
+        if (!document.getElementById('liveedit')) {
+          body.textContent = '';
+          var ta = el('textarea', 'liveedit');
+          ta.id = 'liveedit'; ta.maxLength = 600;
+          ta.placeholder = 'write…';
+          var sg = el('input', 'livesign');
+          sg.id = 'livesign'; sg.maxLength = 40; sg.type = 'text';
+          sg.placeholder = 'signed (optional)';
+          ['pointerdown','mousedown','touchstart'].forEach(function (ev) {
+            ta.addEventListener(ev, function (e) { e.stopPropagation(); });
+            sg.addEventListener(ev, function (e) { e.stopPropagation(); });
+          });
+          var t = null;
+          ta.addEventListener('input', function () {
+            clearTimeout(t);
+            t = setTimeout(function () { send({ t: 'write', text: ta.value }); }, 250);
+          });
+          sg.addEventListener('change', function () { send({ t: 'sign', name: sg.value }); });
+          body.appendChild(ta); body.appendChild(sg);
+          ta.focus();
+        }
+      } else if (nb.pencil && nb.pencil.text !== undefined && nb.pencil.text !== null && penHeld) {
+        ghost.innerHTML = '✎ <b>a stranger</b> is writing';
+        body.textContent = '';
+        var p = el('div', 'pencil', nb.pencil.text || '');
+        p.appendChild(el('span', 'caret'));
+        body.appendChild(p);
+      } else {
+        ghost.textContent = 'the pen is free — touch the page to write';
+        body.textContent = '';
+      }
+    }
+
+    var penHeld = false;
+
+    /* ---------- build the whole book ---------- */
+
     function page(cls) {
       var p = el('div', 'page' + (cls ? ' ' + cls : ''));
       var inner = el('div', 'inner');
@@ -49,79 +173,44 @@
       return { p: p, inner: inner };
     }
 
-    /* ---- build pages from data ---- */
-    function build(nb, archive) {
+    function build(archive) {
       var frag = document.createDocumentFragment();
 
-      /* cover */
       var cover = page('cover');
       var mark = el('div', 'mark');
       ['expressions', 'of', 'emptiness'].forEach(function (w, i) {
-        var s = el('span', i === 1 ? 'of' : null, w);
-        mark.appendChild(s);
+        mark.appendChild(el('span', i === 1 ? 'of' : null, w));
       });
       cover.inner.appendChild(mark);
       cover.inner.appendChild(el('p', 'open-hint',
         isArchiveView ? 'notebook ' + nb.id + ' — archived' : 'notebook ' + nb.id + ' — by dd & strangers'));
       frag.appendChild(cover.p);
 
-      /* entry slots */
       var byN = {};
-      (nb.entries || []).forEach(function (e) { byN[e.n] = e; });
-      var firstBlank = null;
+      nb.entries.forEach(function (e) { byN[e.n] = e; });
       for (var n = 1; n <= nb.pages; n++) {
-        var e = byN[n];
-        if (e) {
-          var pg = page(n % 2 === 0 ? '-back' : null);
-          var poem = el('div', 'poem');
-          e.lines.forEach(function (line) {
-            var dim = line.charAt(0) === '~';
-            var p = el('p', dim ? 'dim' : null, dim ? line.slice(1) : line);
-            poem.appendChild(p);
-          });
-          pg.inner.appendChild(poem);
-          var sig = el('p', 'sig', '— ' + (e.name || 'anonymous'));
-          pg.inner.appendChild(sig);
-          pg.inner.appendChild(el('span', 'folio', String(n)));
-          frag.appendChild(pg.p);
-        } else if (firstBlank === null && !isArchiveView) {
-          /* the write-in page */
-          firstBlank = n;
-          var fp = page('formpage');
-          fp.inner.appendChild(el('p', 'formkick', 'this page is yours'));
-          var form = el('form', 'fillform');
-          form.id = 'fillform';
-          form.innerHTML =
-            '<textarea id="ftext" maxlength="600" rows="7" placeholder="leave what the empty hours gave you&#8230;" required></textarea>' +
-            '<input id="fname" type="text" maxlength="40" placeholder="signed (optional)" autocomplete="off">' +
-            '<input id="fhp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-5000px">' +
-            '<div class="formrow"><span class="fcount"><span id="fc">0</span>/600</span>' +
-            '<button type="submit" id="fgo">offer it</button></div>' +
-            '<p class="fnote" id="fnote"></p>';
-          fp.inner.appendChild(form);
-          fp.inner.appendChild(el('span', 'folio', String(n)));
-          frag.appendChild(fp.p);
-        } else {
-          var bl = page('blankpage' + (n % 2 === 0 ? ' -back' : ''));
-          bl.inner.appendChild(el('p', 'waiting', isArchiveView ? '' : 'still empty'));
-          bl.inner.appendChild(el('span', 'folio', String(n)));
-          frag.appendChild(bl.p);
-        }
+        var pg = page(n % 2 === 0 ? '-back' : null);
+        pageInner[n] = pg.inner;
+        if (byN[n]) renderEntry(pg.inner, byN[n]);
+        else if (n === nb.open && !isArchiveView) renderLivePage(pg.inner, n);
+        else renderBlank(pg.inner, n);
+        frag.appendChild(pg.p);
       }
 
-      /* about */
       var ab = page(null);
+      chromeInner.about = ab.inner;
       var abPoem = el('div', 'poem about');
       abPoem.appendChild(el('p', 'dim', 'about'));
-      abPoem.appendChild(el('p', null, 'a communal notebook of poetry.'));
-      var ap = el('p'); ap.innerHTML = 'anyone may fill a page.<br>when all ' + nb.pages + ' are full,<br>the notebook is shelved<br>and a blank one begins.';
+      abPoem.appendChild(el('p', null, 'a living notebook of poetry.'));
+      var ap = el('p');
+      ap.innerHTML = 'anyone may hold the pen.<br>words appear as they are written;<br>quiet sets them in ink.<br>when all ' + nb.pages + ' pages are full,<br>the notebook is shelved.';
       abPoem.appendChild(ap);
       ab.inner.appendChild(abPoem);
       ab.inner.appendChild(el('span', 'folio', 'about'));
       frag.appendChild(ab.p);
 
-      /* shelf */
       var sh = page(null);
+      chromeInner.shelf = sh.inner;
       var shPoem = el('div', 'poem about');
       shPoem.appendChild(el('p', 'dim', 'the shelf'));
       if (archive.notebooks && archive.notebooks.length) {
@@ -137,16 +226,16 @@
         shPoem.appendChild(el('p', 'dim', 'this one is the first.'));
       }
       if (isArchiveView) {
-        var back = el('a', 'backlink', 'return to the open notebook');
-        back.href = location.pathname;
-        shPoem.appendChild(back);
+        var backL = el('a', 'backlink', 'return to the open notebook');
+        backL.href = location.pathname;
+        shPoem.appendChild(backL);
       }
       sh.inner.appendChild(shPoem);
       sh.inner.appendChild(el('span', 'folio', 'shelf'));
       frag.appendChild(sh.p);
 
-      /* endpage */
       var end = page('endpage');
+      chromeInner.end = end.inner;
       var nav2 = el('nav');
       var mail = el('a', null, 'contact');
       mail.href = 'mailto:dyson@plotflow.io';
@@ -156,21 +245,172 @@
       frag.appendChild(end.p);
 
       book.appendChild(frag);
-      return firstBlank;
     }
 
-    /* ---- fetch data, then boot ---- */
-    Promise.all([
-      fetch('data/notebook-' + wanted + '.json').then(function (r) {
+    /* ---------- contents pane ---------- */
+
+    function idxFor(target) {
+      if (target === 'cover') return 0;
+      if (target === 'about') return nb.pages + 1;
+      if (target === 'shelf') return nb.pages + 2;
+      if (target === 'end') return last;
+      return target; /* page number */
+    }
+    function go(target) {
+      pageFlip.turnToPage(idxFor(target));
+      renderPane();
+    }
+
+    function renderPane() {
+      pane.textContent = '';
+      pane.appendChild(el('p', 'ttl', 'expressions of emptiness · notebook ' + nb.id));
+      var cur = pageFlip ? pageFlip.getCurrentPageIndex() : 0;
+
+      function row(label, target, opts) {
+        opts = opts || {};
+        var a = el('a', opts.cls || null);
+        if (opts.pg != null) a.appendChild(el('span', 'pg', String(opts.pg)));
+        a.appendChild(document.createTextNode(label));
+        var ti = idxFor(target);
+        if (!opts.cls && ti === cur) a.classList.add('on');
+        a.addEventListener('click', function () { go(target); });
+        pane.appendChild(a);
+      }
+
+      row('cover', 'cover', { pg: '—' });
+      nb.entries.forEach(function (e) { row(firstWords(e), e.n, { pg: e.n }); });
+      if (!isArchiveView && nb.open) {
+        var liveLabel = !wsOk ? 'the open page'
+          : penHeld ? 'a stranger is writing…'
+          : 'the pen is free…';
+        row(liveLabel, nb.open, { pg: nb.open, cls: 'live' });
+      }
+      row('about', 'about', { pg: '—' });
+      row('the shelf', 'shelf', { pg: '—' });
+      row('end', 'end', { pg: '—' });
+
+      pane.appendChild(el('div', 'gap'));
+
+      var pres = el('p', 'presence');
+      pres.appendChild(el('span', 'dot'));
+      pres.appendChild(document.createTextNode(presenceLine()));
+      pane.appendChild(pres);
+
+      var ops = el('div', 'paneops');
+      var bl = el('button', null, 'lights');
+      bl.addEventListener('click', toggleLights);
+      var bi = el('button', null, 'immersion →');
+      bi.addEventListener('click', toggleImmersion);
+      ops.appendChild(bl); ops.appendChild(bi);
+      pane.appendChild(ops);
+
+      var corner = document.getElementById('cornerPresence');
+      corner.textContent = '';
+      if (wsOk) {
+        corner.appendChild(el('span', 'dot'));
+        corner.appendChild(document.createTextNode(String(nb.presence || 1)));
+      }
+    }
+
+    function presenceLine() {
+      if (!wsOk) return 'the room is unlit';
+      var c = nb.presence || 1;
+      if (c <= 1) return 'you are here alone';
+      if (c === 2) return 'one stranger is here with you';
+      return c - 1 + ' strangers are here with you';
+    }
+
+    /* ---------- websocket ---------- */
+
+    function send(m) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(m)); }
+
+    function connect() {
+      if (!WORKER_URL || isArchiveView) return;
+      var wsUrl = WORKER_URL.replace(/^http/, 'ws') + '/nb/' + wanted + '/live';
+      ws = new WebSocket(wsUrl);
+      ws.onopen = function () { wsOk = true; };
+      ws.onclose = function () {
+        wsOk = false; youHold = false; penHeld = false;
+        paintLive(); renderPane();
+        setTimeout(connect, 3000);
+      };
+      ws.onmessage = function (evt) {
+        var m; try { m = JSON.parse(evt.data); } catch (_) { return; }
+        if (m.t === 'state') {
+          nb.entries = m.entries; nb.presence = m.presence;
+          penHeld = !!(m.pencil);
+          if (m.pencil) nb.pencil = m.pencil;
+          syncOpen(m.open);
+          renderPane();
+        } else if (m.t === 'presence') {
+          nb.presence = m.count; renderPane();
+        } else if (m.t === 'pencil') {
+          nb.pencil = { n: m.n, text: m.text }; penHeld = true;
+          if (!youHold) paintLive();
+          renderPane();
+        } else if (m.t === 'pen') {
+          penHeld = m.held;
+          if (m.held && pendingTake) { youHold = true; pendingTake = false; }
+          if (!m.held) { youHold = false; nb.pencil = null; }
+          paintLive(); renderPane();
+        } else if (m.t === 'ink') {
+          nb.entries.push(m.entry);
+          youHold = false; penHeld = false; nb.pencil = null;
+          if (pageInner[m.entry.n]) renderEntry(pageInner[m.entry.n], m.entry);
+          syncOpen(m.open);
+          renderPane();
+        } else if (m.t === 'deny') {
+          pendingTake = false;
+          var g = document.getElementById('ghostline');
+          if (g) { g.textContent = m.reason; setTimeout(paintLive, 4000); }
+        }
+      };
+    }
+
+    function syncOpen(open) {
+      if (open === nb.open) { paintLive(); return; }
+      var old = nb.open;
+      nb.open = open;
+      if (old && pageInner[old] && !nb.entries.some(function (e) { return e.n === old; })) {
+        renderBlank(pageInner[old], old);
+      }
+      if (open && pageInner[open]) renderLivePage(pageInner[open], open);
+    }
+
+    /* ---------- boot ---------- */
+
+    function fetchState() {
+      if (WORKER_URL && !isArchiveView) {
+        return fetch(WORKER_URL + '/nb/' + wanted).then(function (r) {
+          if (!r.ok) throw new Error('engine ' + r.status);
+          return r.json();
+        }).catch(function () {
+          return fetch('data/notebook-' + wanted + '.json').then(function (r) { return r.json(); });
+        });
+      }
+      return fetch('data/notebook-' + wanted + '.json').then(function (r) {
         if (!r.ok) throw new Error('no notebook ' + wanted);
         return r.json();
-      }),
+      });
+    }
+
+    Promise.all([
+      fetchState(),
       fetch('data/archive.json').then(function (r) { return r.ok ? r.json() : { notebooks: [] }; })
     ]).then(function (res) {
-      var nb = res[0], archive = res[1];
-      var firstBlank = build(nb, archive);
+      nb = res[0];
+      nb.pages = nb.pages || 48;
+      nb.entries = nb.entries || [];
+      if (nb.open === undefined) {
+        var taken = {};
+        nb.entries.forEach(function (e) { taken[e.n] = 1; });
+        nb.open = null;
+        for (var i = 1; i <= nb.pages; i++) if (!taken[i]) { nb.open = i; break; }
+      }
 
-      var pageFlip = new St.PageFlip(book, {
+      build(res[1]);
+
+      pageFlip = new St.PageFlip(book, {
         width: 375, height: 500,
         size: 'stretch',
         minWidth: 260, maxWidth: 520,
@@ -181,91 +421,53 @@
         flippingTime: reduced ? 1 : 800,
         mobileScrollSupport: false,
         showPageCorners: true,
-        disableFlipByClick: true   /* clicks focus content (the form); corner-drag still turns */
+        disableFlipByClick: true
       });
       pageFlip.loadFromHTML(document.querySelectorAll('.page'));
       window.pageFlip = pageFlip;
+      last = pageFlip.getPageCount() - 1;
 
-      var last = pageFlip.getPageCount() - 1;
-
-      /* keyboard */
       document.addEventListener('keydown', function (e) {
         if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
         if (e.key === 'ArrowRight' || e.key === ' ') { pageFlip.flipNext(); e.preventDefault(); }
         else if (e.key === 'ArrowLeft') { pageFlip.flipPrev(); e.preventDefault(); }
       });
+      pageFlip.on('flip', function () { renderPane(); });
 
-      /* side tabs — index tabs on the fore-edge, like a real notebook */
+      /* touch the open page to take the pen */
+      book.addEventListener('click', function (e) {
+        if (!wsOk || youHold || penHeld) return;
+        var inner = pageInner[nb.open];
+        if (inner && inner.contains(e.target)) {
+          pendingTake = true;
+          send({ t: 'take' });
+        }
+      });
+
+      /* fore-edge tabs (immersion navigation) */
       var tabs = [
-        { label: 'cover', at: 0 },
-        { label: 'poems', at: 1 }
+        { label: 'cover', at: 'cover' },
+        { label: 'poems', at: 1 },
+        { label: 'write', at: null, cls: 'write' }, /* resolved at click: open page */
+        { label: 'about', at: 'about' },
+        { label: 'shelf', at: 'shelf' },
+        { label: 'end', at: 'end' }
       ];
-      if (firstBlank !== null) tabs.push({ label: 'write', at: firstBlank, cls: 'write' });
-      tabs.push(
-        { label: 'about', at: nb.pages + 1 },
-        { label: 'shelf', at: nb.pages + 2 },
-        { label: 'end', at: last }
-      );
-
       var rail = el('nav', 'tabs');
       rail.setAttribute('aria-label', 'sections');
-      var btns = tabs.map(function (t) {
+      tabs.forEach(function (t) {
+        if (t.cls === 'write' && (isArchiveView || !nb.open)) return;
         var b = el('button', t.cls || null, t.label);
         b.type = 'button';
         b.addEventListener('click', function () {
-          pageFlip.turnToPage(t.at);   /* flip() can't span many pages */
-          setActive(pageFlip.getCurrentPageIndex());
+          go(t.cls === 'write' ? nb.open : t.at);
         });
         rail.appendChild(b);
-        return b;
       });
       document.querySelector('.book-col').appendChild(rail);
 
-      function setActive(i) {
-        var best = 0;
-        tabs.forEach(function (t, k) { if (i >= t.at) best = k; });
-        btns.forEach(function (b, k) { b.classList.toggle('active', k === best); });
-      }
-      setActive(0);
-      pageFlip.on('flip', function (e) { setActive(e.data); });
-
-      /* form */
-      var form = document.getElementById('fillform');
-      if (form) {
-        /* the flip engine listens for drags on the whole book — pointer
-           activity that starts inside the form belongs to the form */
-        ['pointerdown', 'mousedown', 'touchstart'].forEach(function (evName) {
-          form.addEventListener(evName, function (e) { e.stopPropagation(); });
-        });
-        var ftext = document.getElementById('ftext'),
-            fname = document.getElementById('fname'),
-            fhp = document.getElementById('fhp'),
-            fc = document.getElementById('fc'),
-            fgo = document.getElementById('fgo'),
-            fnote = document.getElementById('fnote');
-        ftext.addEventListener('input', function () { fc.textContent = ftext.value.length; });
-        form.addEventListener('submit', function (ev) {
-          ev.preventDefault();
-          if (fhp.value) return; /* honeypot */
-          if (!WORKER_URL) {
-            fnote.textContent = 'the pen is still being made — submissions open soon.';
-            return;
-          }
-          fgo.disabled = true; fnote.textContent = 'offering…';
-          fetch(WORKER_URL + '/submit', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ text: ftext.value.trim(), name: fname.value.trim(), notebook: nb.id })
-          }).then(function (r) { return r.json(); }).then(function (out) {
-            fnote.textContent = out.ok
-              ? 'received. it will appear once it has been read.'
-              : (out.error || 'something went wrong — try again later.');
-            if (out.ok) { ftext.value = ''; fname.value = ''; fc.textContent = '0'; }
-          }).catch(function () {
-            fnote.textContent = 'something went wrong — try again later.';
-          }).finally(function () { fgo.disabled = false; });
-        });
-      }
+      renderPane();
+      connect();
     }).catch(function (err) {
       book.textContent = 'could not open the notebook. (' + err.message + ')';
       book.className = 'bookerror';

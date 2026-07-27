@@ -52,6 +52,29 @@
 
   /* motion (MiG) */
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* the room + chrome — these flip with the lights. The notebook itself
+     (cover, paper, oxblood) is an object and stays the same in any light. */
+  --room: #14130f;
+  --room-glow: rgba(245, 243, 236, 0.045);
+  --chrome-hi: #f5f3ec;
+  --chrome-dim: #8a8880;
+  --chrome-mut: #6e6b64;
+  --pane-bg: rgba(20, 19, 15, 0.92);
+  --pane-line: #36312a;
+  --pane-hover: rgba(255, 255, 255, 0.04);
+  --pencil-ink: #9b988e;
+}
+
+:root[data-theme="light"] {
+  --room: #e8e5dd;
+  --room-glow: rgba(20, 19, 15, 0.04);
+  --chrome-hi: #1f1d18;
+  --chrome-dim: #5f5c54;
+  --chrome-mut: #8f8c82;
+  --pane-bg: rgba(240, 237, 229, 0.94);
+  --pane-line: #d6d2c6;
+  --pane-hover: rgba(0, 0, 0, 0.04);
 }
 
 * { box-sizing: border-box; }
@@ -60,13 +83,19 @@ body {
   min-height: 100svh;
   display: flex; flex-direction: column; align-items: center;
   background:
-    radial-gradient(90% 70% at 50% 18%, rgba(245,243,236,0.045), transparent 62%),
-    radial-gradient(140% 110% at 50% 120%, #0a0907 0%, transparent 55%),
-    var(--ground);
-  color: var(--near-white);
+    radial-gradient(90% 70% at 50% 18%, var(--room-glow), transparent 62%),
+    var(--room);
+  color: var(--chrome-hi);
   font-family: var(--display);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  transition: background 400ms var(--ease);
+}
+/* study mode: the contents pane claims the left edge on wide screens */
+@media (min-width: 701px) {
+  body:not(.immersed) { padding-left: 15.5rem; }
+  body:not(.immersed) .tabs { display: none; }
+  body.immersed .pane { transform: translateX(-100%); }
 }
 /* film grain so the dark reads as a surface, not a void of pixels */
 body::before {
@@ -220,6 +249,77 @@ body::before {
 
 /* data failed to load */
 .bookerror { color: var(--muted); font-size: 0.95rem; letter-spacing: 0.08em; display: grid; place-items: center; min-height: 40vh; }
+
+/* ---- the contents pane (study mode) ---- */
+.pane {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 15.5rem;
+  z-index: 30;
+  background: var(--pane-bg);
+  border-right: 1px solid var(--pane-line);
+  padding: 1.5rem 1.1rem 1.1rem;
+  display: flex; flex-direction: column; gap: 0.15rem;
+  transition: transform 380ms var(--ease);
+  overflow-y: auto;
+}
+.pane .ttl { color: var(--chrome-dim); font-size: 0.78rem; letter-spacing: 0.12em; margin: 0 0 1rem; line-height: 1.6; }
+.pane a, .pane .row {
+  display: block; text-decoration: none; cursor: pointer;
+  color: var(--chrome-dim); font-size: 0.84rem; letter-spacing: 0.05em;
+  padding: 0.38rem 0.5rem; border-radius: 6px; line-height: 1.5;
+  transition: color 180ms var(--ease), background 180ms var(--ease);
+}
+.pane a:hover { color: var(--chrome-hi); background: var(--pane-hover); }
+.pane a.on { color: var(--chrome-hi); border-left: 2px solid var(--oxblood); border-radius: 0 6px 6px 0; background: rgba(191,56,43,0.07); }
+.pane a .pg { color: var(--chrome-mut); font-size: 0.7rem; margin-right: 0.5em; }
+.pane a.live, .pane a.live .pg { color: var(--oxblood-bright); }
+.pane .gap { flex: 1; min-height: 1rem; }
+.pane .presence {
+  color: var(--chrome-dim); font-size: 0.76rem; letter-spacing: 0.06em;
+  padding: 0.6rem 0.2rem 0.4rem; border-top: 1px solid var(--pane-line); margin: 0;
+}
+.presence .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--oxblood-bright); margin-right: 0.5em; animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: .45 } 50% { opacity: 1 } }
+.pane .paneops { display: flex; gap: 0.9rem; padding-top: 0.2rem; }
+.pane .paneops button {
+  all: unset; cursor: pointer; color: var(--chrome-mut);
+  font-family: var(--display); font-size: 0.76rem; letter-spacing: 0.1em;
+  padding: 0.3rem 0.2rem; transition: color 180ms var(--ease);
+}
+.pane .paneops button:hover { color: var(--oxblood-bright); }
+
+/* immersion chrome: corner controls */
+.corner { position: fixed; top: 1rem; z-index: 30; font-size: 0.76rem; letter-spacing: 0.1em; color: var(--chrome-mut); }
+.corner button { all: unset; cursor: pointer; color: inherit; font-family: var(--display); }
+.corner button:hover { color: var(--oxblood-bright); }
+.corner.left { left: 1.2rem; display: none; }
+.corner.right { right: 1.2rem; color: var(--chrome-dim); }
+body.immersed .corner.left { display: block; }
+@media (min-width: 701px) {
+  body:not(.immersed) .corner.right { display: none; } /* presence lives in the pane */
+}
+@media (max-width: 700px) { .pane, .corner.left { display: none !important; } }
+
+/* ---- the live page ---- */
+.ghostline { text-align: center; color: #b5b3aa; font-size: 0.72rem; letter-spacing: 0.16em; margin: 0 0 1.4rem; }
+.ghostline b { color: var(--oxblood); font-weight: 400; }
+.pencil { color: var(--pencil-ink); font-size: clamp(1rem, 0.85rem + 0.8vw, 1.45rem); line-height: 2.1; letter-spacing: 0.05em; white-space: pre-wrap; word-break: break-word; }
+.caret { display: inline-block; width: 2px; height: 1em; background: var(--oxblood-bright); vertical-align: text-bottom; margin-left: 1px; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0 } }
+.liveedit {
+  font-family: var(--display);
+  font-size: clamp(1rem, 0.85rem + 0.8vw, 1.45rem);
+  line-height: 2.1; letter-spacing: 0.05em;
+  color: var(--ink); background: transparent; border: 0; outline: none;
+  width: 100%; min-height: 10rem; resize: none; padding: 0;
+}
+.livesign {
+  font-family: var(--display); font-size: 0.95rem; letter-spacing: 0.05em;
+  color: var(--ink-dim); background: transparent;
+  border: 0; border-bottom: 1px solid #d8d5cb; outline: none;
+  width: 60%; margin-top: 1rem; padding: 0.3rem 0.1rem;
+}
+.livesign:focus { border-bottom-color: var(--oxblood); }
+.setline { text-align: center; color: #c9c7be; font-size: 0.66rem; letter-spacing: 0.16em; margin-top: 1.6rem; }
 
 /* ---- side tabs: index tabs on the fore-edge of the notebook ---- */
 .book-col { position: relative; }

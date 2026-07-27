@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eoe — live notebook mockups</title>
+<style>
+@font-face{font-family:"Swinger";src:url(data:font/woff2;base64,__SWINGER__) format("woff2");font-display:swap}
+:root{
+  --ground:#14130f;--card:#1f1d18;--panel:#262320;--hairline:#36312a;
+  --oxblood:#bf382b;--oxblood-bright:#e04434;
+  --near-white:#f5f3ec;--gloss:#a8a69d;--dim:#8a8880;--muted:#6e6b64;
+  --paper:#fffdf6;--paper-back:#f6f4ec;--ink:#1c1c1a;--ink-dim:#6f6d67;--pencil:#9b988e;
+  --d:"Swinger","Georgia",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#0e0f12;color:#e9eaec;font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+.cap{max-width:44rem;margin:0 auto;padding:clamp(2.2rem,6vw,3.6rem) 1.4rem 1.2rem}
+.cap .n{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:#6b727c}
+.cap h2{margin:.4rem 0 .5rem;font-size:1.35rem;font-weight:600}
+.cap p{margin:0;color:#9aa0aa;font-size:.92rem;line-height:1.6}
+
+.frame{position:relative;height:92vh;min-height:560px;overflow:hidden;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);
+  background:radial-gradient(90% 70% at 50% 18%,rgba(245,243,236,.045),transparent 62%),var(--ground);font-family:var(--d)}
+
+/* ---------- contents pane ---------- */
+.pane{position:absolute;left:0;top:0;bottom:0;width:15.5rem;background:rgba(20,19,15,.92);
+  border-right:1px solid var(--hairline);padding:1.6rem 1.3rem;display:flex;flex-direction:column;gap:.2rem}
+.pane .ttl{color:var(--dim);font-size:.8rem;letter-spacing:.14em;margin:0 0 1.2rem}
+.pane a{display:block;text-decoration:none;color:var(--gloss);font-size:.86rem;letter-spacing:.06em;
+  padding:.42rem .5rem;border-radius:6px;line-height:1.5}
+.pane a:hover{color:var(--near-white);background:rgba(255,255,255,.04)}
+.pane a.on{color:var(--near-white);border-left:2px solid var(--oxblood);border-radius:0 6px 6px 0;background:rgba(191,56,43,.07)}
+.pane a .pg{color:var(--muted);font-size:.72rem;margin-right:.5em}
+.pane a.live .pg{color:var(--oxblood-bright)}
+.pane a.live{color:var(--oxblood-bright)}
+.pane .gap{flex:1}
+.pane .presence{color:var(--dim);font-size:.78rem;letter-spacing:.08em;padding:.6rem .2rem;border-top:1px solid var(--hairline)}
+.pane .presence .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--oxblood-bright);margin-right:.5em;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.pane .immerse{all:unset;cursor:pointer;color:var(--muted);font-size:.78rem;letter-spacing:.12em;padding:.5rem .2rem}
+.pane .immerse:hover{color:var(--oxblood-bright)}
+
+/* ---------- book ---------- */
+.deskbook{position:absolute;top:50%;transform:translateY(-50%);display:flex;filter:drop-shadow(0 24px 60px rgba(0,0,0,.5))}
+.f1 .deskbook{left:calc(15.5rem + (100% - 15.5rem)/2);transform:translate(-50%,-50%)}
+.f2 .deskbook,.f3 .deskbook{left:50%;transform:translate(-50%,-50%)}
+.pg-l,.pg-r{width:17rem;height:23rem;padding:1.9rem 1.7rem;position:relative}
+.pg-l{background:var(--paper);border-radius:3px 0 0 3px;border-right:1px solid #e5e2d8}
+.pg-r{background:var(--paper-back);border-radius:0 3px 3px 0}
+.verse{color:var(--ink);font-size:.82rem;line-height:2.1;letter-spacing:.05em}
+.verse .dm{color:var(--ink-dim)}
+.verse .sig{color:var(--ink-dim);font-size:.72rem;margin-top:1.2rem}
+.folio{position:absolute;bottom:.9rem;left:0;right:0;text-align:center;color:#b5b3aa;font-size:.66rem;letter-spacing:.2em}
+
+/* live pencil page */
+.pencil{color:var(--pencil);font-size:.82rem;line-height:2.1;letter-spacing:.05em}
+.caret{display:inline-block;width:2px;height:1em;background:var(--oxblood-bright);vertical-align:text-bottom;animation:blink 1.1s steps(1) infinite;margin-left:1px}
+@keyframes blink{50%{opacity:0}}
+.ghostline{position:absolute;top:1rem;left:0;right:0;text-align:center;color:#b5b3aa;font-size:.64rem;letter-spacing:.18em}
+.ghostline b{color:var(--oxblood);font-weight:400}
+.setline{position:absolute;bottom:2.6rem;left:0;right:0;text-align:center;color:#c9c7be;font-size:.6rem;letter-spacing:.16em}
+
+/* fore-edge tabs (immersion) */
+.etabs{position:absolute;left:calc(50% + 17rem);top:50%;transform:translateY(-46%);display:flex;flex-direction:column;gap:6px}
+.etabs span{writing-mode:vertical-rl;background:var(--card);border:1px solid var(--hairline);border-left:0;
+  border-radius:0 6px 6px 0;color:var(--gloss);font-size:.62rem;letter-spacing:.12em;padding:.55rem .22rem}
+.etabs .on{color:var(--near-white);border-right:2px solid var(--oxblood)}
+.etabs .wr{color:var(--oxblood-bright)}
+.corner-presence{position:absolute;top:1.1rem;right:1.4rem;color:var(--dim);font-size:.72rem;letter-spacing:.1em}
+.corner-presence .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--oxblood-bright);margin-right:.45em;animation:pulse 2.4s ease-in-out infinite}
+.reveal{position:absolute;top:1.1rem;left:1.4rem;color:var(--muted);font-size:.72rem;letter-spacing:.12em}
+
+.foot{padding:2.4rem 1.4rem 3.6rem;text-align:center;color:#6b727c;font-size:.78rem}
+</style>
+</head>
+<body>
+
+<div class="cap">
+  <p class="n">live notebook &middot; mockup 1 of 3</p>
+  <h2>The study — contents pane open</h2>
+  <p>Left pane lists every page by its first words — the whole book navigable at a glance. The open page glows oxblood and updates live. Presence sits at the bottom of the pane; "immersion" collapses everything.</p>
+</div>
+<section class="frame f1">
+  <aside class="pane">
+    <p class="ttl">expressions of emptiness &middot; notebook 001</p>
+    <a><span class="pg">&mdash;</span>cover</a>
+    <a><span class="pg">1</span>the room keeps the shape&hellip;</a>
+    <a><span class="pg">2</span>i have learned the weight&hellip;</a>
+    <a><span class="pg">3</span>some mornings i am&hellip;</a>
+    <a class="on"><span class="pg">4</span>and still i keep the light&hellip;</a>
+    <a class="live"><span class="pg">5</span>a stranger is writing&hellip;</a>
+    <a><span class="pg">&mdash;</span>about</a>
+    <a><span class="pg">&mdash;</span>the shelf</a>
+    <div class="gap"></div>
+    <p class="presence"><span class="dot"></span>three strangers are here</p>
+    <button class="immerse">immersion &rarr;</button>
+  </aside>
+  <div class="deskbook">
+    <div class="pg-l">
+      <div class="verse">and still i keep the light on.<br>not for anyone.<br>just to see<br>the shape of the dark.<div class="sig">&mdash; dd</div></div>
+      <span class="folio">4</span>
+    </div>
+    <div class="pg-r">
+      <div class="ghostline">&#9998; <b>a stranger</b> is writing</div>
+      <div class="pencil">tonight the hallway hums<br>with the sound of no one home<span class="caret"></span></div>
+      <span class="folio">5</span>
+    </div>
+  </div>
+</section>
+
+<div class="cap">
+  <p class="n">live notebook &middot; mockup 2 of 3</p>
+  <h2>Immersion — just the book in the dark</h2>
+  <p>The pane folds away; the fore-edge tabs return; presence shrinks to a breathing dot in the corner. One key or click brings the contents back.</p>
+</div>
+<section class="frame f2">
+  <p class="reveal">&larr; contents</p>
+  <p class="corner-presence"><span class="dot"></span>3</p>
+  <div class="deskbook">
+    <div class="pg-l">
+      <div class="verse">and still i keep the light on.<br>not for anyone.<br>just to see<br>the shape of the dark.<div class="sig">&mdash; dd</div></div>
+      <span class="folio">4</span>
+    </div>
+    <div class="pg-r">
+      <div class="ghostline">&#9998; <b>a stranger</b> is writing</div>
+      <div class="pencil">tonight the hallway hums<br>with the sound of no one home<br>and i am learning to call<br>that sound mine<span class="caret"></span></div>
+      <span class="folio">5</span>
+    </div>
+  </div>
+  <div class="etabs"><span>cover</span><span>poems</span><span class="on wr">write</span><span>about</span><span>shelf</span><span>end</span></div>
+</section>
+
+<div class="cap">
+  <p class="n">live notebook &middot; mockup 3 of 3</p>
+  <h2>The ink moment</h2>
+  <p>Two quiet minutes later the pencil sets: the grey warms to ink, the signature appears, the next page becomes the open one. Nothing was submitted; the book simply kept what was written.</p>
+</div>
+<section class="frame f3">
+  <p class="corner-presence"><span class="dot"></span>3</p>
+  <div class="deskbook">
+    <div class="pg-l">
+      <div class="verse">tonight the hallway hums<br>with the sound of no one home<br>and i am learning to call<br>that sound mine<div class="sig">&mdash; a stranger</div></div>
+      <span class="folio">5</span>
+      <div class="setline">the page has set</div>
+    </div>
+    <div class="pg-r">
+      <div class="ghostline">page 6 is open</div>
+      <span class="folio">6</span>
+    </div>
+  </div>
+  <div class="etabs"><span>cover</span><span>poems</span><span class="on wr">write</span><span>about</span><span>shelf</span><span>end</span></div>
+</section>
+
+<p class="foot">expressions of emptiness &middot; live notebook design study &middot; all verse placeholder</p>
+
+</body>
+</html>
