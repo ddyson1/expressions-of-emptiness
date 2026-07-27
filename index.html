@@ -180,7 +180,8 @@
         maxShadowOpacity: 0.12,
         flippingTime: reduced ? 1 : 800,
         mobileScrollSupport: false,
-        showPageCorners: true
+        showPageCorners: true,
+        disableFlipByClick: true   /* clicks focus content (the form); corner-drag still turns */
       });
       pageFlip.loadFromHTML(document.querySelectorAll('.page'));
       window.pageFlip = pageFlip;
@@ -231,6 +232,11 @@
       /* form */
       var form = document.getElementById('fillform');
       if (form) {
+        /* the flip engine listens for drags on the whole book — pointer
+           activity that starts inside the form belongs to the form */
+        ['pointerdown', 'mousedown', 'touchstart'].forEach(function (evName) {
+          form.addEventListener(evName, function (e) { e.stopPropagation(); });
+        });
         var ftext = document.getElementById('ftext'),
             fname = document.getElementById('fname'),
             fhp = document.getElementById('fhp'),
